@@ -38,7 +38,6 @@ Things you configure:
 - **Model** — the underlying voice synthesis model. (`voice_config.voice_model`)
 - **Voice** — the specific voice ID within the model. (`voice_config.voice_id`)
 - **Speed** — playback speed multiplier. (`voice_config.voice_speed`)
-- **Emotion** — emotional tone of the synthesized voice. (`voice_config.voice_emotion`)
 - **Volume** — volume level. (`voice_config.voice_volume`)
 
 ## Call operations
