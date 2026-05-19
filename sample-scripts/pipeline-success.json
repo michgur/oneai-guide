@@ -1,0 +1,1693 @@
+{
+  "cooldown_on_agent_ignore": 0,
+  "cooldown_on_user_ignore": 0,
+  "default_metadata": {
+    "%company_name%": "Care-In-Homes",
+    "%agent_name%": "Ellie",
+    "_disposition": "",
+    "_contact_name": "Simon",
+    "_contact_full_name": "Simon Harris",
+    "_search_zip": "75453",
+    "human_agent_mobile phone": "+972526026965",
+    "%voicemail_message%": "Hi This is {%agent_name%} from Care In Homes, calling in regards to your request for in-home care.  Would you call me back at {%agent_phone_number%:local_phone:digits_no_grouping}. Talk with you soon, thank you.",
+    "%human_message%": "Hi This is {%agent_name%} from Care In Homes, calling in regards to your request for in-home care.  Would you call me back at {%agent_phone_number%:local_phone:digits_no_grouping}. Talk with you soon, thank you.",
+    "_interests": [
+      "in_home"
+    ],
+    "_zip code verification": "yes",
+    "_still looking for care": "yes",
+    "_care recipient": "Mother",
+    "_care service timeline": "Immediately",
+    "_number of weekly care days": "4 or 5 days",
+    "_number of daily care hours": "Less than 4 hours",
+    "%responses_reason_for_call%": "This call is regarding the request you submitted on {lander/brand/Care in homes:words}",
+    "%responses_list_source%": "This call is regarding the request you submitted on {lander/brand/Care in homes:words}",
+    "%call_intro%": "Hello this is {%agent_name%} with Care In Homes",
+    "%speaker_verification_acknowledge%": "Nice meeting you",
+    "%responses_are_you_ai%": "Yes, I am an AI agent. I'd like to just verify a few answers you've provided us and I'll get you connected with a live person. ",
+    "%responses_is_this_a_scam%": "Not at all! We are only calling because there was a request on {lander/brand/Care in homes:words} for In-Home care. ",
+    "%responses_talk_to_a_human%": "I will certainly get you connected with a human. I just need to briefly verify a few pieces of information you submitted. ",
+    "%responses_dont_like_ai%": "I will certainly get you connected with a human. I just need to briefly verify a few pieces of information you submitted on our website. ",
+    "%responses_company_name%": "I am with {%company_name%}.",
+    "%responses_agent_name%": "My name is {%agent_name%} and I'm with {%company_name%}",
+    "budget category": "unsure"
+  },
+  "experiments": [
+    {
+      "name": "Voices Match - Sept 30th (fixed)",
+      "description": "New Voices",
+      "test_groups": [
+        {
+          "name": "Raquel",
+          "percent": 34
+        },
+        {
+          "name": "Talia",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "62KnlCDSwsvFlozWxTdp"
+            }
+          }
+        },
+        {
+          "name": "Beka",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "dp67thqO6rCHvdVYpp2z"
+            }
+          }
+        }
+      ],
+      "enabled": false
+    },
+    {
+      "name": "Skip days and hours",
+      "enabled": false,
+      "test_groups": [
+        {
+          "name": "Skipped",
+          "percent": 50,
+          "goals_update": {
+            "number of daily care hours": {
+              "enabled": false
+            },
+            "number of weekly care days": {
+              "enabled": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Volume and speed",
+      "enabled": false,
+      "test_groups": [
+        {
+          "name": "slower and louder",
+          "percent": 50,
+          "config": {
+            "voice_config": {
+              "speech_speed": 0.9,
+              "speech_volume": 1.15
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dialing timeout",
+      "enabled": false,
+      "test_groups": [
+        {
+          "name": "60 seconds",
+          "percent": 50,
+          "config": {
+            "twilio_config": {
+              "max_dial_seconds": 60
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "prefer exact area code",
+      "enabled": false,
+      "test_groups": [
+        {
+          "name": "disabled",
+          "percent": 50,
+          "config": {
+            "twilio_config": {
+              "prefer_same_area_code": false
+            }
+          }
+        },
+        {
+          "name": "enabled",
+          "percent": 50,
+          "config": {
+            "twilio_config": {
+              "prefer_same_area_code": true
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "name": "speak on behalf",
+      "priority": 10,
+      "conditions": "speaker verification = no",
+      "value_type": "approval",
+      "messages": [
+        {
+          "message": "May I speak with you on their behalf?"
+        },
+        {
+          "message": "So would you be the right person to speak to on behalf of {contact_name}?"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "speak on behalf=yes",
+          "values": {
+            "speaker verification": "yes"
+          }
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "still looking for care",
+      "detection_name": "looking for care",
+      "value_type": "approval",
+      "is_selection": true,
+      "acknowledge": false,
+      "conditions": "speaker verification",
+      "fulfillment": [
+        {
+          "timing": "triggered",
+          "note": "after verifying contact identity, disposition is failed unless overriden",
+          "values": {
+            "disposition": "failed"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "message": "I'm an advisor with Care-In-Homes.   Are you still looking for care options?",
+          "conditions": "%call_type% = phone_inbound and %performed_count% = 0"
+        },
+        {
+          "message": "My name is {%agent_name%}, I'm an advisor with Care-In-Homes, are you still looking for care?",
+          "conditions": "%call_type% = phone_inbound"
+        },
+        {
+          "message": "Are you looking for non-medical, in-home companion care services?"
+        },
+        {
+          "message": "Are you still interested in getting options for companion care?"
+        },
+        {
+          "message": "Are you open to hear our options for care?"
+        },
+        {
+          "message": "Just to make sure I understood, are you still looking for care?"
+        }
+      ],
+      "choices": [
+        {
+          "name": "yes",
+          "acknowledge": false,
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "disposition": "failed"
+              },
+              "call_result": "contact_verified"
+            }
+          ],
+          "id": "2.1"
+        },
+        {
+          "name": "no",
+          "goals": [
+            {
+              "name": "client not interested",
+              "goal_type": "say",
+              "force_exact_response": true,
+              "exclusive_message": true,
+              "conditions": [
+                {
+                  "field": "still looking for care",
+                  "value": "no"
+                }
+              ],
+              "messages": [
+                {
+                  "message": "[SPEED=0.8]Ok, Thank you for your time and please feel free to call us in the future should your care needs change!"
+                }
+              ],
+              "fulfillment": [
+                {
+                  "timing": "performed",
+                  "values": {},
+                  "voice_action": "hang_up"
+                }
+              ],
+              "id": "2.2.1"
+            }
+          ],
+          "id": "2.2",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "disposition": "no_longer_interested"
+              },
+              "call_result": "disqualified"
+            }
+          ]
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "search_zip",
+      "conditions": "still looking for care = yes",
+      "detection_name": "zip code",
+      "options": {
+        "range": [
+          11111,
+          999999
+        ]
+      },
+      "goal_type": "ask",
+      "value_type": "custom",
+      "acknowledge": "Thank you, I'll get that updated",
+      "messages": [
+        {
+          "message": "Would you please share the zip code where you need care?"
+        },
+        {
+          "message": "Can I get the zip code for the address that required care?"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "performed",
+          "values": {
+            "zip code verification": "yes"
+          }
+        }
+      ],
+      "objection_handling": [
+        "This information is needed for us to offer you the most suitable service provider"
+      ],
+      "id": "3"
+    },
+    {
+      "name": "zip code verification",
+      "value_type": "approval",
+      "is_selection": true,
+      "acknowledge": false,
+      "force_exact_response": false,
+      "conditions": "search_zip and still looking for care = yes",
+      "messages": [
+        {
+          "message": "I just need to confirm the care details you provided us. Is the zip code where you need care [SPEED=0.85] {search_zip:digits_no_grouping}?"
+        },
+        {
+          "message": "Can you confirm the zipcode where you need care for is [SPEED=0.85]  {search_zip:digits_no_grouping}?"
+        }
+      ],
+      "choices": [
+        {
+          "name": "yes",
+          "validation_prompt": [
+            "user zip code is {search_zip}"
+          ],
+          "id": "4.1"
+        },
+        {
+          "name": "no",
+          "acknowledge": "no worries",
+          "goals": [
+            {
+              "name": "updated zip code",
+              "detection_name": "zip code",
+              "options": {
+                "range": [
+                  11111,
+                  999999
+                ]
+              },
+              "goal_type": "ask",
+              "value_type": "custom",
+              "acknowledge": "thank you, I'll get that updated.",
+              "messages": [
+                {
+                  "message": "would you please share the correct zip code?"
+                },
+                {
+                  "message": "what should I put down as your zip code?"
+                }
+              ],
+              "objection_handling": [
+                "We just need it for us to offer you the best care options."
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "values": {
+                    "search_zip": "{updated zip code:.0f}"
+                  }
+                }
+              ],
+              "id": "4.2.1"
+            }
+          ],
+          "id": "4.2"
+        }
+      ],
+      "id": "4"
+    },
+    {
+      "name": "care recipient",
+      "value_type": "selection",
+      "messages": [
+        {
+          "message": "Who is the care for? Mother, father, spouse, self or other?",
+          "explicit_part": "Who is the care for?"
+        },
+        {
+          "message": "Just to clarify, who is the care for? Mother, father, spouse, self or other?",
+          "explicit_part": "Who is the care for?"
+        }
+      ],
+      "choices": [
+        {
+          "name": "Mother",
+          "id": "5.1"
+        },
+        {
+          "name": "Father",
+          "id": "5.2"
+        },
+        {
+          "name": "Spouse",
+          "id": "5.3"
+        },
+        {
+          "name": "Self",
+          "id": "5.4"
+        },
+        {
+          "name": "Other",
+          "id": "5.5"
+        }
+      ],
+      "id": "5"
+    },
+    {
+      "name": "type of services",
+      "value_type": "selection",
+      "detection_model": "llm_function",
+      "is_selection": true,
+      "acknowledge": false,
+      "force_exact_response": false,
+      "explicit_part": "Are you looking for in-home care, Assisted living, or both?",
+      "messages": [
+        {
+          "message": "Do you mind confirming if it's in-home, Assisted living, or both?"
+        },
+        {
+          "message": "Are you looking for in-home care, Assisted living, or both options?"
+        },
+        {
+          "message": "I see you are needing {interests:cleanup} care, can you confirm if it's in-home care, Assisted living, or both?"
+        }
+      ],
+      "choices": [
+        {
+          "name": "in-home",
+          "acknowledge": false,
+          "id": "6.1"
+        },
+        {
+          "name": "assisted-living",
+          "id": "6.2"
+        },
+        {
+          "name": "both",
+          "id": "6.3"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "type of services = in-home",
+          "values": {
+            "updated_interests": [
+              "in_home"
+            ]
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "type of services = assisted-living",
+          "values": {
+            "updated_interests": [
+              "assisted_living"
+            ]
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "type of services = both",
+          "values": {
+            "updated_interests": [
+              "in_home",
+              "assisted_living"
+            ]
+          }
+        }
+      ],
+      "id": "6"
+    },
+    {
+      "name": "care service timeline",
+      "value_type": "selection",
+      "detection_model": "llm_function",
+      "acknowledge": false,
+      "messages": [
+        {
+          "message": "Just a couple more quick questions. Are you looking to start services immediately, within 30 days or over 30 days?"
+        },
+        {
+          "message": "When would you like to begin care service? In the next 30 days or later?"
+        }
+      ],
+      "objection_handling": [
+        "This will help me understand your urgency."
+      ],
+      "choices": [
+        {
+          "name": "Immediately",
+          "id": "7.1"
+        },
+        {
+          "name": "Within 30 days",
+          "id": "7.2"
+        },
+        {
+          "name": "Over 30 days",
+          "id": "7.3"
+        },
+        {
+          "name": "Just gathering information",
+          "id": "7.4"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "note": "API does not have 'over 30 days' option but we want to have it for the AI to better understand the options, so we map the values",
+          "conditions": "care service timeline = Over 30 days",
+          "values": {
+            "care service timeline": "Just gathering information"
+          }
+        }
+      ],
+      "id": "7"
+    },
+    {
+      "name": "number of weekly care days",
+      "enabled": false,
+      "options": {
+        "range": [
+          1,
+          7
+        ]
+      },
+      "validation_prompt": "Return the number of days each week that the senior care is needed",
+      "value_type": "custom",
+      "detection_model": "llm_function",
+      "acknowledge": "thank you",
+      "messages": [
+        {
+          "message": "How many days of care are needed each week? "
+        },
+        {
+          "message": "Would you estimate how many days care is needed weekly?"
+        },
+        {
+          "message": "A rough estimate will do. How many days of care you think are needed each week?"
+        }
+      ],
+      "objection_handling": [
+        "I won't be able to help you without knowing the required number of days"
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "number of weekly care days <= 3",
+          "values": {
+            "number of weekly care days": "3 days or less"
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "number of weekly care days >=4 and number of weekly care days <= 5",
+          "values": {
+            "number of weekly care days": "4 or 5 days"
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "number of weekly care days >= 6",
+          "values": {
+            "number of weekly care days": "6 or more days"
+          }
+        }
+      ],
+      "id": "8"
+    },
+    {
+      "name": "number of daily care hours",
+      "enabled": false,
+      "options": {
+        "range": [
+          1,
+          24
+        ]
+      },
+      "validation_prompt": "Return the number of hours a day that the senior care is needed.",
+      "value_type": "custom",
+      "detection_model": "llm_function",
+      "acknowledge": "Ok thanks.",
+      "messages": [
+        {
+          "message": "How many hours of care are needed each day?  "
+        },
+        {
+          "message": "Approximately, what is the number of hours care is needed each day?"
+        },
+        {
+          "message": "So I need at least an estimate, how many care hours are needed each day?"
+        }
+      ],
+      "objection_handling": [
+        "We use this information to find the perefect match for your needs."
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "number of daily care hours < 4",
+          "values": {
+            "number of daily care hours": "Less than 4 hours"
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "number of daily care hours >=4 and number of daily care hours <= 8",
+          "values": {
+            "number of daily care hours": "4 to 8 hours"
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "number of daily care hours > 6",
+          "values": {
+            "number of daily care hours": "More than 8 hours"
+          }
+        }
+      ],
+      "id": "9"
+    },
+    {
+      "name": "financing method",
+      "value_type": "selection",
+      "detection_model": "llm_function",
+      "validation_prompt": "Medicaid and medicare are the same.",
+      "messages": [
+        {
+          "message": "How do you plan on paying for care? Private pay, long term care insurance, medicaid, or public assistance"
+        },
+        {
+          "message": "Just to clarify, how will you be paying for care? Private pay, long term care insurance, medicaid, or public assistance"
+        }
+      ],
+      "goals": [
+        {
+          "name": "Long Term Care Insurance",
+          "id": "10.1"
+        },
+        {
+          "name": "Medicaid/Public Assistance Only",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "disposition": "medicare_medicaid"
+              }
+            }
+          ],
+          "goals": [
+            {
+              "name": "willing to pay",
+              "value_type": "approval",
+              "is_selection": true,
+              "messages": [
+                {
+                  "message": "Most in-home care services are not covered by insurance, Medicare, Medicaid or public assistance.  Paying out-of pocket is the norm for companion care. Will you be willing to use private funds?"
+                },
+                {
+                  "message": "Will you be willing to pay for care with private pay?"
+                }
+              ],
+              "goals": [
+                {
+                  "name": "no",
+                  "goals": [
+                    {
+                      "name": "end call due to payment method",
+                      "goal_type": "say",
+                      "messages": [
+                        {
+                          "message": "Our partners only accept private pay at this time, you may try calling two-one-one for additional assistance. Have a nice day."
+                        }
+                      ],
+                      "fulfillment": [
+                        {
+                          "timing": "performed",
+                          "trigger": "hang up",
+                          "call_result": "disqualified"
+                        }
+                      ],
+                      "id": "10.2.1.1.1"
+                    }
+                  ],
+                  "id": "10.2.1.1"
+                },
+                {
+                  "name": "yes",
+                  "fulfillment": [
+                    {
+                      "timing": "collected",
+                      "values": {
+                        "financing method": "Private funds",
+                        "disposition": "verified"
+                      }
+                    }
+                  ],
+                  "id": "10.2.1.2"
+                }
+              ],
+              "id": "10.2.1",
+              "force_exact_response": true
+            }
+          ],
+          "id": "10.2"
+        },
+        {
+          "name": "Private funds",
+          "id": "10.3"
+        },
+        {
+          "name": "Other",
+          "id": "10.4"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "financing method != Medicaid/Public Assistance Only",
+          "values": {
+            "disposition": "verified"
+          }
+        }
+      ],
+      "id": "10",
+      "triggers": [
+        "Do you accept medicaid?"
+      ]
+    },
+    {
+      "name": "budget for care",
+      "enabled": false,
+      "value_type": "unit",
+      "acknowledge": "great.",
+      "repeat": 2,
+      "messages": [
+        {
+          "message": "Last question I have: what is your estimated monthly budget for care?"
+        },
+        {
+          "message": "Do you have any sort of approximate budget in mind?"
+        },
+        {
+          "message": "At least approximately, what is your monthly care budget?"
+        }
+      ],
+      "objection_handling": [
+        "We use this information to find the perfect match for your needs."
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "budget for care < 1000",
+          "values": {
+            "budget category": "Less than $1000"
+          }
+        },
+        {
+          "timing": "collected",
+          "conditions": "budget for care >= 1000",
+          "values": {
+            "budget category": "Over $1000"
+          }
+        }
+      ],
+      "goals": [
+        {
+          "name": "unlimited budget",
+          "conditions": "financing method = Long Term Care Insurance",
+          "notes": "We allow user to not give a budget only in case they have long-term care insurance",
+          "goal_type": "say",
+          "cost": 100,
+          "trigger_scope": "budget for care",
+          "triggers": [
+            "I don't have a budget",
+            "I don't know"
+          ],
+          "fulfillment": [
+            {
+              "timing": "triggered",
+              "values": {
+                "budget for care": "Long term care insurance",
+                "budget category": "Long term care insurance"
+              }
+            }
+          ],
+          "id": "11.1"
+        }
+      ],
+      "id": "11"
+    },
+    {
+      "name": "email",
+      "acknowledge": "Got it.",
+      "value_type": "custom",
+      "options": {
+        "llm_model": "oneai_value_detection"
+      },
+      "validation_prompt": "return the user's formatted email address '_@_._'. return null if user refuses to provide an email.",
+      "messages": [
+        {
+          "message": "What's the best email address to use?"
+        },
+        {
+          "message": "What email should we have on file for you?"
+        },
+        {
+          "message": "Could I get a good email for you?"
+        }
+      ],
+      "id": "12"
+    },
+    {
+      "name": "checking for options",
+      "detection_name": "ok",
+      "value_type": "approval",
+      "uninterruptible": true,
+      "messages": [
+        {
+          "pre_message": "I'm gonna check for the best matches for you,",
+          "message": "is that ok?"
+        }
+      ],
+      "cooldown": 10,
+      "fulfillment": [
+        {
+          "timing": "triggered",
+          "call_result": "qualified"
+        },
+        {
+          "timing": "performed",
+          "webhook": {
+            "test_headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer 759978f91ae505ce67e0f3baef57760ef9fe5d2166cb5017aab315a19210a340fe037957cc8e2fbbd34740d75107b2d52adec9d8c2e41c888dd31abdc8e46bcd"
+            },
+            "headers": {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer ff42e736376b0a5636174b366751176b886e2532628030c81581a482f466532ed8bebe8e32022556bf0aaf0420879da17fb3be66cb21c27d4efde32b6b2e831b"
+            },
+            "mapping": {
+              "values": {
+                "pipeline_success_contact_id": "id",
+                "transfer_1_name": "targets.0.company",
+                "transfer_1_phone": "targets.0.phone_number",
+                "transfer_1_brand": "targets.0.brand",
+                "transfer_1_id": "targets.0.id",
+                "transfer_2_name": "targets.1.company",
+                "transfer_2_phone": "targets.1.phone_number",
+                "transfer_2_brand": "targets.1.brand",
+                "transfer_2_id": "targets.1.id",
+                "transfer_3_name": "targets.2.company",
+                "transfer_3_phone": "targets.2.phone_number",
+                "transfer_3_brand": "targets.3.brand",
+                "transfer_3_id": "targets.2.id",
+                "match_1": "matches.0.company",
+                "match_2": "matches.1.company",
+                "match_3": "matches.2.company",
+                "match_4": "matches.3.company",
+                "match_5": "matches.4.company",
+                "match_names": [
+                  "matches.0.company",
+                  "matches.1.company",
+                  "matches.2.company",
+                  "matches.3.company",
+                  "matches.4.company",
+                  "matches.5.company"
+                ],
+                "selected_action": "action"
+              },
+              "transfer_1_name": "targets.0.company",
+              "transfer_1_phone": "targets.0.phone_number",
+              "transfer_1_brand": "targets.0.brand",
+              "transfer_1_id": "targets.0.id",
+              "transfer_2_name": "targets.1.company",
+              "transfer_2_phone": "targets.1.phone_number",
+              "transfer_2_brand": "targets.1.brand",
+              "transfer_2_id": "targets.1.id",
+              "transfer_3_name": "targets.2.company",
+              "transfer_3_phone": "targets.2.phone_number",
+              "transfer_3_brand": "targets.3.brand",
+              "transfer_3_id": "targets.2.id",
+              "match_1": "matches.0.company",
+              "match_2": "matches.1.company",
+              "match_3": "matches.2.company",
+              "match_4": "matches.3.company",
+              "match_5": "matches.4.company",
+              "match_names": "matches.0.company,matches.1.company,matches.2.company,matches.3.company,matches.4.company,matches.5.company",
+              "selected_action": "action",
+              "pipeline_success_contact_id": "id"
+            },
+            "timeout": 10,
+            "url": "https://api.pipelinesuccess.com/calls/update",
+            "_test_url": "https://rosetta.pipelinesuccess.com/calls/update",
+            "_dev_url": "https://12g99.wiremockapi.cloud/transfer-options",
+            "body": {
+              "id": "{pipeline_success_contact_id}",
+              "phone": "{phone:local_phone}",
+              "email": "{email}",
+              "first_name": "{contact_name}",
+              "last_name": "{contact_last_name}",
+              "search_zip": "{updated zip code/search_zip/ }",
+              "valid_phone_number": true,
+              "call_answered": true,
+              "willing_to_transfer": true,
+              "questions": {
+                "who": "{care recipient}",
+                "when": "{care service timeline}",
+                "days": "{number of weekly care days}",
+                "hours": "{number of daily care hours}",
+                "financing": "{financing method}",
+                "budget": "{budget category/unsure}"
+              },
+              "additional_notes": ""
+            },
+            "body_mapping": {
+              "interests": "updated_interests"
+            }
+          }
+        }
+      ],
+      "id": "13"
+    },
+    {
+      "name": "transfer flow",
+      "conditions": "selected_action = transfer",
+      "goals": [
+        {
+          "name": "spoke to transfer 1",
+          "value_type": "approval",
+          "conditions": "transfer_1_name",
+          "detection_name": "spoke with {transfer_1_name}",
+          "messages": [
+            {
+              "message": "I have {transfer_1_name:words} available. Have you spoken with them previously?"
+            },
+            {
+              "message": "The best match we have for you is {transfer_1_name:words}, did you already speak with them?"
+            },
+            {
+              "message": "have you already spoken with {transfer_1_name:words}?"
+            }
+          ],
+          "goals": [
+            {
+              "name": "agrees to transfer 1",
+              "detection_name": "agree to transfer",
+              "conditions": "spoke to transfer 1 = no",
+              "value_type": "approval",
+              "is_selection": true,
+              "acknowledge": "Sounds good.",
+              "objection_handling": [
+                "It shouldn't take long, they usually answer very quickly"
+              ],
+              "messages": [
+                {
+                  "message": "Let me bring them on the line, this should take less than a minute, is that ok?"
+                },
+                {
+                  "message": "Can I transfer you to a {transfer_1_name:words} specialist for more information?"
+                },
+                {
+                  "message": "Should I go ahead and connect you to a {transfer_1_name:words} representative?"
+                },
+                {
+                  "message": "May I transfer you to {transfer_1_name:words}?"
+                }
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "conditions": "agrees to transfer 1 = yes",
+                  "values": {
+                    "selected partner name": "{transfer_1_name}",
+                    "selected partner phone": "{transfer_1_phone}",
+                    "selected partner brand": "{transfer_1_brand}",
+                    "selected partner id": "{transfer_1_id}"
+                  },
+                  "trigger": "transfer to representative"
+                }
+              ],
+              "id": "14.1.1"
+            }
+          ],
+          "id": "14.1"
+        },
+        {
+          "name": "spoke to transfer 2",
+          "value_type": "approval",
+          "conditions": "transfer_2_name and selected partner name $is_empty",
+          "detection_name": "spoke with {transfer_2_name}",
+          "messages": [
+            {
+              "message": "Another great option I have for you is {transfer_2_name:words}, did you speak with them?"
+            },
+            {
+              "message": "Did you already speak with {transfer_2_name:words}?"
+            }
+          ],
+          "goals": [
+            {
+              "name": "agrees to transfer 2",
+              "detection_name": "agree to transfer",
+              "conditions": "spoke to transfer 2 = no",
+              "value_type": "approval",
+              "is_selection": true,
+              "acknowledge": "Okay.",
+              "objection_handling": [
+                "It shouldn't take long, they usually answer quickly"
+              ],
+              "messages": [
+                {
+                  "message": "Can I transfer you to the {transfer_2_name:words} specialist for more information?"
+                },
+                {
+                  "message": "Let me bring them on the line, this should take less than a minute, is that ok?"
+                },
+                {
+                  "message": "May I transfer you to {transfer_2_name:words}?"
+                }
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "conditions": "agrees to transfer 2 = yes",
+                  "values": {
+                    "selected partner name": "{transfer_2_name}",
+                    "selected partner phone": "{transfer_2_phone}",
+                    "selected partner brand": "{transfer_2_brand}",
+                    "selected partner id": "{transfer_2_id}"
+                  },
+                  "trigger": "transfer to representative"
+                }
+              ],
+              "id": "14.2.1"
+            }
+          ],
+          "id": "14.2"
+        },
+        {
+          "name": "spoke to transfer 3",
+          "value_type": "approval",
+          "conditions": "transfer_3_name and selected partner name $is_empty",
+          "detection_name": "spoke with {transfer_3_name}",
+          "messages": [
+            {
+              "message": "I also have {transfer_3_name:words} available. Have you already spoken with them?"
+            },
+            {
+              "message": "Did you already speak with {transfer_3_name:words}?"
+            }
+          ],
+          "goals": [
+            {
+              "name": "agrees to transfer 3",
+              "detection_name": "agree to transfer",
+              "conditions": "spoke to transfer 3 = no",
+              "value_type": "approval",
+              "is_selection": true,
+              "acknowledge": "Okay.",
+              "objection_handling": [
+                "It shouldn't take long, they usually answer quickly"
+              ],
+              "messages": [
+                "Can I transfer you to the {transfer_3_name} specialist for more information?",
+                "should I go ahead and connect you to one of {transfer_3_name} representatives?",
+                "May I transfer you to {transfer_3_name}?"
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "conditions": "agrees to transfer 3 = yes",
+                  "values": {
+                    "selected partner name": "{transfer_3_name}",
+                    "selected partner phone": "{transfer_3_phone}",
+                    "selected partner brand": "{transfer_3_brand}",
+                    "selected partner id": "{transfer_3_id}"
+                  },
+                  "trigger": "transfer to representative"
+                }
+              ],
+              "id": "14.3.1"
+            }
+          ],
+          "id": "14.3"
+        },
+        {
+          "name": "transfer to representative",
+          "priority": -2,
+          "goal_type": "say",
+          "uninterruptible": true,
+          "messages": [
+            {
+              "message": "I'll be right back."
+            }
+          ],
+          "conditions": "selected partner phone",
+          "fulfillment": [
+            {
+              "timing": "triggered_once",
+              "webhook": {
+                "_url": "https://rosetta.pipelinesuccess.com/calls/live_transfer",
+                "url": "https://api.pipelinesuccess.com/calls/live_transfer",
+                "headers": {
+                  "authorization": "Bearer ff42e736376b0a5636174b366751176b886e2532628030c81581a482f466532ed8bebe8e32022556bf0aaf0420879da17fb3be66cb21c27d4efde32b6b2e831b",
+                  "Content-Type": "application/json"
+                },
+                "body": {
+                  "id": "{pipeline_success_contact_id}",
+                  "target_id": "{selected partner id}",
+                  "willing_to_transfer": true,
+                  "reason": "",
+                  "notes": "spoke to transfer: No"
+                }
+              }
+            },
+            {
+              "timing": "triggered_once",
+              "values": {
+                "disposition": "transfer-in-progress"
+              },
+              "new_call": {
+                "agent": "pipeline-success-callcenter",
+                "phone_number": "{selected partner phone}",
+                "pre_merge_message": "You are now connected.",
+                "parent_fail_message": "I am sorry but I could not connect you, we will call you back later. Good Bye",
+                "from_number": "{phone}",
+                "contact_name": "{selected partner name:words}",
+                "check_dnc_registry": false,
+                "metadata": {
+                  "disposition": "converted",
+                  "source_agent": "pipeline-success",
+                  "brand": "{selected partner brand:words}",
+                  "contact_name": "{selected partner name:words}",
+                  "contact_last_name": " ",
+                  "client_phone_number": "{phone:local_phone:digits_no_grouping}",
+                  "client_first_name": "{contact_name}",
+                  "client_last_name": "{contact_last_name}",
+                  "client_full_name": "{contact_full_name}",
+                  "client zip code": "{search_zip:digits_no_grouping}",
+                  "care service timeline": "{care service timeline}",
+                  "number of weekly care days": "{number of weekly care days}",
+                  "number of daily care hours": "{number of daily care hours}",
+                  "budget for senior care": "{budget category}",
+                  "pipeline_success_contact_id": "{pipeline_success_contact_id}"
+                },
+                "idle_messages": [
+                  {
+                    "text": "Sorry about the delay, I'm working to bring them on the line",
+                    "timeout": 12
+                  },
+                  {
+                    "text": "It shouldn't be much longer",
+                    "timeout": 22
+                  },
+                  {
+                    "text": "I'm still waiting for them to answer",
+                    "timeout": 30
+                  },
+                  {
+                    "text": "It's usually much faster but I am still working on getting them on the line, shouldn't take much longer",
+                    "timeout": 60
+                  },
+                  {
+                    "text": "Still working on it, thanks for being patient",
+                    "timeout": 60
+                  }
+                ]
+              }
+            },
+            {
+              "timing": "performed",
+              "call_result": "converted"
+            }
+          ],
+          "id": "14.4"
+        },
+        {
+          "name": "hold while connecting",
+          "conditions": "selected partner phone",
+          "goal_type": "behave",
+          "priority": -2,
+          "repeat": true,
+          "messages": "The user is waiting for a Great Care Agency specialist to connect, it may take a moment, usually, less than one minute.\nBe nice and reassure them that you're dialing the agency on the other line, while they are waiting and you will connect them in less than a minute.\nYou may answer their questions to the best of your knowledge while they wait. Try to be brief.\n#### If the user says \"thank you\", simply say \"You're welcome.\" (or similar response)\n#### If the user says \"ok\", simply say \"No problem, please hold.\" (or similar response)\n#### If the user says they don't have any questions simply say \"Sounds good, one moment please.\" (or similar response)\n\n#### Also check for relevant responses from the documentation, try to use a new response each time.",
+          "id": "14.5"
+        }
+      ],
+      "id": "14"
+    },
+    {
+      "name": "match flow",
+      "goals": [
+        {
+          "name": "only matches",
+          "conditions": "match_1",
+          "goal_type": "say",
+          "messages": "I have {match_names} but they're not available to speak right now but they will be giving you a call back.  If you're unable to speak with them when they call they will leave a voicemail with their contact information.",
+          "id": "15.1",
+          "fulfillment": [
+            {
+              "timing": "triggered",
+              "call_result": "converted"
+            }
+          ]
+        },
+        {
+          "name": "no matches",
+          "conditions": "selected_action = no_matches or selected_action $is_empty",
+          "goal_type": "say",
+          "messages": "I'm sorry, But we couldn't find a good match for you right now. I will add this to the system and we will be in touch in case something becomes available.",
+          "id": "15.2"
+        },
+        {
+          "name": "end call",
+          "repeat": true,
+          "goal_type": "say_generative",
+          "messages": "There are no other matches to suggested to the customer. Transfers are not allowed. You are not able to transfer. End the call with the customer, end the call by saying \"good bye, have a nice day\".",
+          "id": "15.3"
+        }
+      ],
+      "id": "15"
+    }
+  ],
+  "goals_update": {
+    "speaker verification": {
+      "fulfillment": {
+        "+": {
+          "timing": "collected",
+          "conditions": "speaker verification = no",
+          "trigger": "speak on behalf"
+        }
+      }
+    },
+    "schedule-callback": {
+      "conditions": {
+        "+": {
+          "field": "agrees to transfer",
+          "condition": "is_empty"
+        }
+      }
+    },
+    "inbound contact name": {
+      "detection_name": "person name",
+      "value_type": "custom",
+      "detection_model": "llm_function",
+      "trigger_scope": "speaking to customer outbound",
+      "options": {
+        "all_messages": true,
+        "llm_model": "oneai_value_detection",
+        "llm_function_property_name": "first_name",
+        "llm_function_property_description": ""
+      },
+      "messages": [
+        {
+          "message": "{%inbound_welcome_message%}, Who am I speaking with?",
+          "conditions": "person_last_name $empty"
+        },
+        {
+          "message": "What is your name please?",
+          "conditions": "person_last_name $empty"
+        },
+        {
+          "message": "May I please ask who am I speaking with?",
+          "conditions": "person_last_name $empty"
+        },
+        {
+          "message": "Sorry, what is your first name please?",
+          "conditions": "person_last_name"
+        },
+        {
+          "message": "Sorry, I didn't catch your first name please?",
+          "conditions": "person_last_name"
+        }
+      ],
+      "validation_prompt": "",
+      "fulfillment": {
+        "+": {
+          "timing": "collected",
+          "values": {
+            "contact_name": "{inbound contact name}",
+            "contact_full_name": "{inbound contact name}{contact_name or last_name?\" \"}{last_name}"
+          }
+        }
+      },
+      "goals": [
+        {
+          "name": "person_last_name",
+          "detection_name": "last_name",
+          "goal_type": "ask",
+          "detection_model": "llm_function",
+          "messages": [
+            "Can I get your last name please?",
+            "Can you please share you last name?",
+            "I just need your last name so I can process your call."
+          ],
+          "options": {
+            "all_messages": true,
+            "llm_model": "oneai_value_detection"
+          },
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "contact_last_name": "{person_last_name}",
+                "contact_full_name": "{inbound contact name} {person_last_name}"
+              }
+            }
+          ],
+          "id": "2.2"
+        }
+      ],
+      "id": "2"
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "Are they CNAs or nurses?”",
+        "Are they allowed to give shots or pills?",
+        "Are you able to administer medication?",
+        "Are your caregivers nurses?",
+        "Can they do wound care?",
+        "Can you do facelifts?",
+        "Can you guys work with using a colostomy bag?",
+        "Can you help with physical therapry?",
+        "Can you replace a catheter bag?",
+        "Can your caregivers give medication or check vitals?",
+        "Do they handle insulin or other medical routines?",
+        "Do you provide medical care? ",
+        "Do your caregivers have medical training?",
+        "Will they do injections?",
+        "Will you find someone to replace bandages?"
+      ],
+      "answers": [
+        "No, our care partners are only able to provide non-medical, companion caregivers."
+      ]
+    },
+    {
+      "questions": [
+        "Do you know how much it would cost for a few hours a day?”",
+        "How much do caregivers charge?",
+        "How much do you charge?",
+        "How much does care cost?",
+        "I don't have a budget. It depends on what they can provide.",
+        "I just want to find how much per hour.",
+        "It depends on how much it costs",
+        "What are your prices like?”",
+        "What's your hourly rates?",
+        "How much does it cost?"
+      ],
+      "answers": [
+        "The cost of care is going to depend on a number of variables.  Let me get you matched with an agency who can provide you with their specific pricing based on your care needs."
+      ]
+    },
+    {
+      "questions": [
+        "Are you a skilled facility or unskilled?"
+      ],
+      "answers": [
+        "No we assist families by searching for non-medical in-home care options. "
+      ]
+    },
+    {
+      "questions": [
+        "Can I use my health insurance to cover the costs?",
+        "Do you take any type of insurance?",
+        "I have Humana",
+        "I'm hoping my insurance will cover it",
+        "Is United Healthcare accepted?"
+      ],
+      "answers": [
+        "Our care partners do not accept any form of private insurance for payment. However, out of pocket funds or long-term insurance are accepted."
+      ]
+    },
+    {
+      "questions": [
+        "How expensive is in-home care?",
+        "How much does home care cost?"
+      ],
+      "answers": [
+        "That's a great question, it's going to depend on a number of factors which is why I recommend speaking with several agencies.  "
+      ]
+    },
+    {
+      "questions": [
+        " Can you take medical Medicare supplemental insurance?",
+        "Can I use Medicaid to pay for in-home care?",
+        "Can I use private insurance?",
+        "Do you accept Medicare Advantage Plans?",
+        "Do you take government insurance or Medicaid?",
+        "Is Medicaid accepted for your services?",
+        "What kind of payment do you accept?",
+        "What kind of public assistance can I use?",
+        "Will Medicaid cover this kind of care?",
+        "do you accept medicaid?",
+        "do you accept medicare or medicaid?"
+      ],
+      "answers": [
+        "Most in home care services are not covered by insurance, Medicare, Medicaid or public assistance. Paying out of pocket is the norm for companion care services."
+      ]
+    },
+    {
+      "questions": [
+        "Are you a recording?"
+      ],
+      "answers": [
+        "I am an AI agent. However, I'd like to just verify a few answers you've provided us and I'll get you connected with a live person. "
+      ]
+    },
+    {
+      "questions": [
+        "Are you from \"Comfort Keepers?\"",
+        "Are you with \"Acti-Kare Cororate?\"",
+        "Are you with \"Always Best Care?\"",
+        "Are you with \"Home Instead?\"",
+        "Are you with \"Visiting Angels?\""
+      ],
+      "answers": [
+        "No I am with Care In Homes."
+      ]
+    },
+    {
+      "questions": [
+        "What care options do I have?"
+      ],
+      "answers": [
+        "I totally understand, figuring out care for the first time can feel overwhelming. Most families start where you are. I can connect you with your local agency to go over those options before you ever make a final decision."
+      ]
+    },
+    {
+      "questions": [
+        "What's involved with public assistance? "
+      ],
+      "answers": [
+        "Public assistance typically refers to Medicaid or any other state-funded resources."
+      ]
+    },
+    {
+      "questions": [
+        "Why is Care In Homes calling me?",
+        "Why is CareInHomes calling me?",
+        "Why is Karen Holmes calling me?"
+      ],
+      "answers": [
+        "I'm calling in response to your request for in home care options."
+      ]
+    },
+    {
+      "questions": [
+        "I was just seeing what this was all about. I run a home care agency."
+      ],
+      "answers": [
+        "I understand. We are here to assist families who are looking for in-home care services. "
+      ]
+    },
+    {
+      "questions": [
+        "Can you email me this information?",
+        "Can you send all of this in an email to me?",
+        "Can you text me this information?"
+      ],
+      "answers": [
+        "Each agency will typically reach out with their information.  If possible, I'd like to see if I can connect you with them right now."
+      ]
+    },
+    {
+      "questions": [
+        "Is Social Security accepted?"
+      ],
+      "answers": [
+        "All agencies that we partner with only accept private pay and long term insurance payments."
+      ]
+    },
+    {
+      "questions": [
+        "Is your organization Vermont Visiting Nurses?"
+      ],
+      "answers": [
+        "No, we are Care In Homes."
+      ]
+    },
+    {
+      "questions": [
+        "Can you tell me if in-home care or assisted living makes more sense?",
+        "Do you think assisted living or in-home care would be better?",
+        "How do I know if my loved one needs assisted living instead of in-home help?",
+        "Should I go with assisted living or in home care?",
+        "Would it be better to move them into a facility or keep them at home?"
+      ],
+      "answers": [
+        "That’s a very important decision, and it depends on your loved one’s care needs. We can help you explore both in-home care and assisted living options so you can decide what feels right."
+      ]
+    },
+    {
+      "questions": [
+        "Are you close by?",
+        "Where are you headquartered?",
+        "Where is your company?",
+        "where are you guys located?"
+      ],
+      "answers": [
+        "We're based out of Virginia but help families all across the country."
+      ]
+    },
+    {
+      "questions": [
+        "Where are they located?",
+        "Where is the agency?"
+      ],
+      "answers": [
+        "They are a local care partner. We are only searching for someone that is close to you. "
+      ]
+    },
+    {
+      "questions": [
+        "Can you help me with employer verification?"
+      ],
+      "answers": [
+        "No, it's possible you reached the wrong company. We assist if families that looking for in-home care options."
+      ]
+    },
+    {
+      "questions": [
+        "Are you better than the last agency I worked with?"
+      ],
+      "answers": [
+        "I'm so sorry to hear that. We pride ourselves on partnering with the best agencies that will help you find the perfect caregiver to have that exceptional experience that you and your loved one deserve."
+      ]
+    },
+    {
+      "questions": [
+        "Do I need to make a decision today?"
+      ],
+      "answers": [
+        "That’s great! Researching your options is the best way to find the right care for your loved one. Since we work with trusted local agencies that specialize in in-home care, I’d be happy to connect you with one to go over those options. A final decision won’t have to be made today if you’re still considering what’s out there. Would that be helpful?"
+      ]
+    },
+    {
+      "questions": [
+        "I can't talk right now. I'm currently driving."
+      ],
+      "answers": [
+        "That's completely understandable. I can give you a call back at your earliest convenience - whenever you prefer."
+      ]
+    },
+    {
+      "questions": [
+        "Do you have any agency near me?",
+        "Do you have any caregivers near my city?"
+      ],
+      "answers": [
+        "I can certainly help check for you. I just need to verify a few pieces of information you provided and I'll see if we have someone local to you. "
+      ]
+    },
+    {
+      "questions": [
+        "Can you give me the agency's phone number?",
+        "What is their phone number?"
+      ],
+      "answers": [
+        "I do not have their phone number, but I can connect you with someone directly from there and they can provide you all their contact information,."
+      ]
+    },
+    {
+      "questions": [
+        "How do I know which agency to go with?"
+      ],
+      "answers": [
+        "We recommend speaking to multiple agencies to find the best one for you."
+      ]
+    },
+    {
+      "questions": [
+        "I am an AI agent. However, my goal is to connect you with a live person.",
+        "Are you a real person or a computer?",
+        "Am I speaking with a computer?"
+      ],
+      "answers": [
+        "I am an AI agent. However, my goal is to connect you with a live person."
+      ]
+    },
+    {
+      "questions": [
+        "What is companion care?"
+      ],
+      "answers": [
+        "Companion care consists of non-medical services such as meal preparation, bathing, grooming, medication reminders, and socialization."
+      ]
+    },
+    {
+      "questions": [
+        "How do I pay?",
+        "What payment methods can I use?"
+      ],
+      "answers": [
+        "Our care partners will accept private pay and long-term insurance."
+      ]
+    },
+    {
+      "questions": [
+        "What agency do you work with?"
+      ],
+      "answers": [
+        "I don't work for an agency. We are a referral service that will connect you with someone local to you. "
+      ]
+    },
+    {
+      "questions": [
+        "Does it matter if the person getting care is not a senior?"
+      ],
+      "answers": [
+        "That's no problem at all! Our partners will provide care to those of all ages."
+      ]
+    },
+    {
+      "questions": [
+        "We don’t need full-time care, are you able to offer just a couple hours of care per day?",
+        "What I need is two days a week for a couple hours a day, do you do that?"
+      ],
+      "answers": [
+        "That’s perfectly fine! Our care partners offer everything from part time all the way to twenty four seven care.  "
+      ]
+    },
+    {
+      "questions": [
+        "I am still on your website and you already called me immediately",
+        "I appreciate how fast you called.",
+        "I wasn't expecting to get a call so quickly",
+        "Thank you for following up so fast",
+        "That was fast — I just hit submit",
+        "That was quick! I just filled that form out.",
+        "You called me and I am still on the website",
+        "You called me back so quickly",
+        "You guys are on top of it!",
+        "You just called me. Is this about that form I filled out?"
+      ],
+      "answers": [
+        "Yes, we like to respond quickly — making sure you get the right care as soon as possible is really important to us!"
+      ]
+    },
+    {
+      "questions": [
+        "Does this cost any money?",
+        "Does this cost money?"
+      ],
+      "answers": [
+        "Not to consult with my colleagues, that service is free of charge!"
+      ]
+    },
+    {
+      "questions": [
+        "We don't know how we're going to pay. We are still figuring that out."
+      ],
+      "answers": [
+        "I understand. It's an important choice to consider before you make a final decision. Private pay and long-term insurance are accepted form of payments. I can connect you with a local agency if those would be an option for you. You do not need to make a final decision today."
+      ]
+    },
+    {
+      "questions": [
+        "I need to think about it."
+      ],
+      "answers": [
+        "No worries, there is no obligation. Why won't you talk to one of our consultants and hear a great offer?"
+      ]
+    },
+    {
+      "questions": [
+        "I'll call them myself"
+      ],
+      "answers": [
+        "I certainly understand. I don't have their phone number, but I can connect you quickly to gather their contact information if that's okay."
+      ]
+    },
+    {
+      "questions": [
+        "How much is this service?",
+        "Is Care In Homes free?"
+      ],
+      "answers": [
+        "Care In Homes is an entirely free service. Our only goal is to find you the best caregivers nearby."
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "Can you do Dialysis?",
+        "Do you offer Physical Therapy?",
+        "Do you do physical therapy?",
+        "Can you do nursing?",
+        "Can you provide me a nurse?",
+        "Can you give me a physical therapist?",
+        "Can you send someone that can provide an enema?"
+      ],
+      "answers": [
+        "No, however our clients will provide companion services such as meal preparation, light housekeeping, bathing, toileting, dressing and standby assistance."
+      ],
+      "force_response": false
+    }
+  ]
+}

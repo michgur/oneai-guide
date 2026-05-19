@@ -6,25 +6,53 @@ A script defines what the agent does turn by turn during a call. It's made up of
 
 We ship a library of pre-built goals covering the common pieces of a phone conversation. You don't author these from scratch — they're enabled and configured through metadata switches and prompts in `default_metadata`. Most scripts start by configuring built-ins and only add custom goals for use cases the built-ins don't cover.
 
-**Speaker verification.** Opens the call on outbound dials — agent introduces itself, says why it's calling, and confirms it has the right party before continuing. *Configurable:* the intro line, acknowledgement after verification, and a callback-specific acknowledgement for scheduled callbacks. (`%call_intro%`, `%speaker_verification_acknowledge%`, `%speaker_verification_acknowledge_callback%`)
+**Outgoing call opening**
 
-**Inbound welcome.** Greets the caller on inbound calls, optionally asking for first or last name. *Configurable:* welcome message, whether to ask for first/last name. (`%inbound_welcome_message%`, `%inbound_ask_for_name%`, `%inbound_ask_for_last_name%`)
+The sequence that runs at the start of every outbound call. The agent introduces itself, confirms it has the right party, and navigates any obstacles before reaching the contact.
 
-**Contact discovery.** When the wrong person answers, asks for the right contact. *Configurable:* what the agent is calling about, why it's looking for them, and whether discovery should apply even to already-known contacts. (`%contact_discovery_ownership%`, `%contact_discovery_reason%`, `%contact_discovery_for_named_contacts%`)
+Things you configure:
 
-**Call screener.** Handles call-screening behavior ("who's calling? what's this about?"). *Configurable:* a custom prompt appended to the default screener handling. (`%call_screener_prompt%`)
+- **Call intro** — what the agent says when the contact picks up; introduces itself and states why it's calling. (`%call_intro%`)
+- **Acknowledge** — short line said after the contact confirms they're the right person. (`%speaker_verification_acknowledge%`)
+- **Acknowledge on callback** — variant of the acknowledgement used on scheduled callbacks. (`%speaker_verification_acknowledge_callback%`)
+- **Call screener handling** — how the agent responds when asked "who's calling? what's this about?" before reaching the contact. (`%call_screener_prompt%`)
+- **IVR** — which extension or department to navigate to when the call hits a phone-tree menu. (`%IVR_TARGET%`)
+- **Voicemail** — what the agent leaves when the call reaches voicemail, or disable voicemail-leaving entirely. (`%voicemail_message%`, `%voicemail_disabled%`)
+- **Gatekeeper** — message left with a human gatekeeper who isn't the target contact, and how the agent opens the request to transfer the call to them. (`%human_message%`, `%transfer_opening%`)
 
-**IVR navigation.** Navigates phone-tree menus to reach the right extension or department. *Configurable:* target extension/department. (`%IVR_TARGET%`)
+**Incoming call opening**
 
-**Gatekeeper handoff.** Message left with a human gatekeeper who isn't the target contact. *Configurable:* the message. (`%human_message%`)
+The greeting sequence at the start of every inbound call.
 
-**Voicemail.** Leaves a voicemail when the call reaches one. *Configurable:* the message, or disable voicemail-leaving entirely. (`%voicemail_message%`, `%voicemail_disabled%`)
+Things you configure:
 
-**Transfer.** When the agent reaches a gatekeeper, asks them to transfer the call to the target contact. *Configurable:* how the agent opens the transfer request. (`%transfer_opening%`)
+- **Welcome message** — what the agent says when the caller connects. (`%inbound_welcome_message%`)
+- **Whether to ask for contact first name** — prompt the caller for their first name as part of the greeting. (`%inbound_ask_for_name%`)
+- **Whether to ask for contact last name** — prompt the caller for their last name. (`%inbound_ask_for_last_name%`)
 
-**Scheduling.** Books a meeting with the user. Three modes — *voice* (book in-conversation), *SMS link* (text the user a booking link), and *callback* (schedule a callback time). *Configurable:* which modes are enabled, meeting type, explainer and confirmation copy, SMS content, scheduling link, timezone requirement, whether successful scheduling marks the contact as converted, and the goal to transition to afterward. (`%scheduling-via-voice-allowed%`, `%scheduling-via-link-allowed%`, `%scheduling_meeting_type%`, `%scheduling_link%`, `%post_scheduling_goal%`, and related `%scheduling_…%` switches)
+**Contact discovery**
 
-**Email collection.** Asks the user for their email address. *Configurable:* the ask message. (`%email_collection_message%`)
+When the wrong person answers, the agent asks for the right contact before continuing.
+
+Things you configure:
+
+- **What the call is about** — context given to the person who answered when asking if they know the contact. (`%contact_discovery_ownership%`)
+- **Why the agent is looking for them** — reason given for needing to reach the contact. (`%contact_discovery_reason%`)
+- **Discovery for named contacts** — whether discovery runs even when the platform already has a name on file for the contact. (`%contact_discovery_for_named_contacts%`)
+
+**Meeting scheduling**
+
+Books a meeting with the contact. Supports three modes: *voice* (book in-conversation), *SMS link* (text a booking link), and *callback* (schedule a callback time).
+
+Things you configure:
+
+- **Enabled modes** — which of the three scheduling methods are available. (`%scheduling-via-voice-allowed%`, `%scheduling-via-link-allowed%`)
+- **Meeting type** — the kind of meeting being booked. (`%scheduling_meeting_type%`)
+- **Scheduling link** — the booking URL sent via SMS. (`%scheduling_link%`)
+- **Copy** — explainer and confirmation messages shown during scheduling, and SMS content. (related `%scheduling_…%` switches)
+- **Timezone requirement** — whether the agent must confirm the contact's timezone before booking.
+- **Convert on schedule** — whether a successful booking marks the contact as converted.
+- **Next goal** — which goal to transition to after scheduling completes. (`%post_scheduling_goal%`)
 
 ## Goals & flow
 
@@ -101,17 +129,9 @@ Action types available to both:
 - **Trigger another goal** — bring another goal into the flow.
 - **Override agent response or user query** — force a specific agent line or rewrite the user's query for the current turn.
 
-## Responses (FAQ)
+**Automations**
 
-A flat list of question→answer pairs that fire when the user asks something the goal flow wasn't designed to handle.
-
-Things you configure per entry:
-
-- **Sample questions** — phrasings of the question this entry should match.
-- **Answers** — one or more answers; the agent picks among them.
-- **Conditions** — required state for this entry to be eligible.
-- **Negative triggers** — phrases that should suppress this match.
-- **Force exact wording** — deliver the answer verbatim. (`force_response`)
+The same action types are also available outside the real-time call loop. Automations fire at end-of-call or end-of-sequence — use them for post-call work like running an LLM query over the transcript, pushing fields to a CRM, or marking contacts do-not-call. (`fulfillment_tasks`)
 
 ## Metadata & variables
 

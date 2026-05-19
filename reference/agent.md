@@ -111,6 +111,26 @@
 | `voice_config.vad.logging_interval_sec` | `0.5` | Interval (seconds) between VAD log entries. |
 | `voice_config.vad.send_chunk_size` | `160` | Audio chunk size (samples) sent to the VAD model. |
 
+### Dialer
+
+| Parameter | Default | Description |
+| :---- | :---- | :---- |
+| `agent_is_enabled` | `true` | Whether the agent is active and allowed to make calls. |
+| `working_hours` | Mon–Fri 09:00–17:00 | Allowed operating hours per day of the week; each day maps to a list of `{start, end}` time windows. |
+| `timezone` | `"America/Chicago"` | Timezone used when evaluating working hours and scheduling. |
+| `country_code` | `""` | Country code applied to phone numbers when dialing. |
+| `max_concurrent_calls` | `null` | Maximum number of simultaneous outbound calls. |
+| `required_slots` | `null` | Minimum number of available call slots required before dialing. |
+| `retry_limit` | `3` | Number of times to retry a call after a failed attempt. |
+| `retry_intervals` | `null` | Per-attempt delay (seconds) between retries. |
+| `fresh_ratio` | `0.5` | Fraction of each dialing batch that targets fresh (never-contacted) contacts. |
+| `excluded_date_ranges` | `null` | Date ranges during which no calls are placed. |
+| `hot_transfer_agent_id` | `null` | ID of the human-agent queue used for warm/hot transfers. |
+| `allow_outside_expert_humans_working_hours` | `false` | Whether calls can be placed outside the expert-humans team's working hours. |
+| `expert_humans_working_hours` | `null` | Working hours for the expert-humans team; same format as `working_hours`. |
+| `expert_humans_timezone` | `null` | Timezone for expert-humans working hours. |
+| `unique_keys_name` | `null` | Additional fields (besides phone number) used to uniquely identify a contact. |
+
 ### Twilio
 
 | Parameter | Default | Description |

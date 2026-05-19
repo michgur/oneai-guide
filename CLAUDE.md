@@ -9,3 +9,10 @@ A user-friendly guide to the platform's settings, written for the internal produ
 - **Concise.** ~2 pages per category. Short paragraphs. Trim ruthlessly.
 - **List the things you configure.** For each section, after a brief intro, use a bullet list of *things you configure* (concept name in bold, one-line explanation, params in parens).
 - **Ask when unsure.** If you don't understand a concept or aren't sure whether it's user-facing, ask before writing.
+
+## Project structure
+
+- **`/references`** includes complete lists of system parameters.
+- **`/sample-scripts`** includes a list of real-life script configuration examples.
+- **`/agent-settings.md`** is a guide for agent-level settings.
+- **`/script-settings.md`** is a guide for script-level settings (an agent can have multiple scripts).

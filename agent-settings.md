@@ -2,32 +2,71 @@
 
 Settings that define *who* the agent is. The *what it does in a call* lives in the script (call & goal settings).
 
-## Identity
+## Identity & responses
 
-The persona is the agent's self-description — written in natural language and prepended to its system message. This is where you say "you are a helpful onboarding specialist at Acme who is warm but to the point." (`identity`)
+**Identity**
 
-The agent has two names: an internal one shown in the admin UI (`display_name`) and a public-facing one used in conversations (`public_name`).
+Who the agent is and how it should behave — these values shape the agent's system message and are referenced throughout the conversation.
 
-You pick the model that generates the agent's responses (`llm_model_to_use`) and how predictable you want it to be — lower temperature for compliance-heavy use cases, higher for friendlier improvisation (`temperature`).
+Things you configure:
 
-Finally, an agent binds to a single script version that defines its conversation flow (`director_config_id`). The script itself is configured separately — see the call & goal guides.
+- **Name** — the agent's public-facing name used in conversation. (`%agent_name%`)
+- **Company name** — the company the agent represents. (`%company_name%`)
+- **Voice** — how the agent sounds; see [Voice](#voice) below.
+- **Objective** — the agent's reason for calling; frames its goal and shapes how it handles the conversation.
+- **Guardrails** — things the agent should never say or do, regardless of what the user asks.
+- **Additional instructions** — freeform instructions appended to the system message; normally left empty.
+
+**Responses**
+
+A flat list of question→answer pairs that fire when the user asks something the goal flow wasn't designed to handle. Two layers — built-in responses (pre-configured answers for common questions) and custom responses (entries you define yourself).
+
+Things you configure per entry:
+
+- **Sample questions** — phrasings of the question this entry should match.
+- **Answers** — one or more answers; the agent picks among them.
+- **Conditions** — required state for this entry to be eligible.
+- **Negative triggers** — phrases that should suppress this match.
+- **Force exact wording** — deliver the answer verbatim. (`force_response`)
 
 ## Voice
 
-The voice character — the model, the specific voice, its speed, emotional tone, and volume — determines how the agent sounds. (`voice_config.voice_model`, `voice_id`, `voice_speed`, `voice_emotion`, `voice_volume`)
+How the agent sounds.
+
+Things you configure:
+
+- **Model** — the underlying voice synthesis model. (`voice_config.voice_model`)
+- **Voice** — the specific voice ID within the model. (`voice_config.voice_id`)
+- **Speed** — playback speed multiplier. (`voice_config.voice_speed`)
+- **Emotion** — emotional tone of the synthesized voice. (`voice_config.voice_emotion`)
+- **Volume** — volume level. (`voice_config.voice_volume`)
 
 ## Call operations
 
-Three operational limits per call: how long a call can run before the platform ends it (`max_call_duration`), how much continuous silence ends it (`max_silence_duration`), and whether the call is recorded (`recording_enabled`).
+How and when the agent runs calls — both the dialer's behavior across calls and the limits on each running call.
 
-> **Sequence data retention.** We run call *sequences*, not isolated calls. During a call, the agent collects fields from the contact. By default these reset between calls in the sequence — useful when you want to re-ask. For fields you only ever want to collect once, list them here. (`cross_call_metadata_retention`)
+Things you configure:
 
-## Automations
-
-Automations that run *outside* the call's real-time loop. They fire at end-of-call or end-of-sequence and can call webhooks, run LLM queries over the conversation, or override contact state (e.g. mark as do-not-call, update CRM fields). Use them for anything you'd otherwise do manually after a call. (`fulfillment_tasks`)
+- **Agent enabled** — master switch for whether the agent dials at all. (`agent_is_enabled`)
+- **Working hours** — allowed call windows per day of the week, evaluated in the configured timezone. (`working_hours`, `timezone`)
+- **Blackout dates** — date ranges during which no calls go out (holidays, freezes). (`excluded_date_ranges`)
+- **DNC registry check** — check the Do-Not-Call registry before dialing and skip listed numbers. (`voice_config.check_dnc_registry`)
+- **Concurrency** — maximum simultaneous outbound calls. (`max_concurrent_calls`)
+- **Retries** — how many times to retry after a failed attempt and the delay between attempts. (`retry_limit`, `retry_intervals`)
+- **Fresh vs. retry mix** — fraction of each dialing batch that targets never-contacted contacts vs. retrying existing ones. (`fresh_ratio`)
+- **Hot transfer queue** — the human-agent queue warm/hot transfers route to. (`hot_transfer_agent_id`)
+- **Human team working hours** — separate working hours for the human transfer team; used both to gate dialing and to decide whether hot transfers are available. Calls outside this window can optionally still be placed. (`expert_humans_working_hours`, `expert_humans_timezone`, `allow_outside_expert_humans_working_hours`)
+- **Contact dedup keys** — additional fields beyond phone number used to identify a contact uniquely. (`unique_keys_name`)
+- **Per-call duration cap** — how long a call can run before the platform ends it. (`max_call_duration`)
+- **Silence cutoff** — how much continuous silence ends a call. (`max_silence_duration`)
+- **Recording** — whether calls are recorded. (`recording_enabled`)
 
 ## Telephony
 
-By default, the platform provisions a Twilio subaccount for you — you don't manage credentials. What you *will* still deal with: regulatory provisioning (carrier requirements for the regions you call) and number management (acquiring, assigning, and retiring phone numbers).
+By default the platform provisions a Twilio subaccount for you and manages credentials. BYO Twilio is supported for orgs that want full control.
 
-For orgs that want full control of their telephony, BYO Twilio is supported — you provide the account SID, auth token, and number, and the platform routes through it. (`twilio_config.account_sid`, `auth_token`, `phone_number`)
+Things you configure:
+
+- **Regulatory provisioning** — carrier requirements for the regions you call; some jurisdictions require registration before dialing can begin.
+- **Number management** — acquiring, assigning, and retiring phone numbers used as caller IDs.
+- **BYO Twilio credentials** — for orgs running their own Twilio account, the account SID, auth token, and phone number that calls route through. (`twilio_config.account_sid`, `auth_token`, `phone_number`)
