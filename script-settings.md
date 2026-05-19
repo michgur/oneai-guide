@@ -12,13 +12,13 @@ The sequence that runs at the start of every outbound call. The agent introduces
 
 Things you configure:
 
-- **Call intro** — what the agent says when the contact picks up; introduces itself and states why it's calling. (`%call_intro%`)
-- **Acknowledge** — short line said after the contact confirms they're the right person. (`%speaker_verification_acknowledge%`)
-- **Acknowledge on callback** — variant of the acknowledgement used on scheduled callbacks. (`%speaker_verification_acknowledge_callback%`)
-- **Call screener handling** — how the agent responds when asked "who's calling? what's this about?" before reaching the contact. (`%call_screener_prompt%`)
-- **IVR** — which extension or department to navigate to when the call hits a phone-tree menu. (`%IVR_TARGET%`)
-- **Voicemail** — what the agent leaves when the call reaches voicemail, or disable voicemail-leaving entirely. (`%voicemail_message%`, `%voicemail_disabled%`)
-- **Gatekeeper** — message left with a human gatekeeper who isn't the target contact, and how the agent opens the request to transfer the call to them. (`%human_message%`, `%transfer_opening%`)
+- **Call intro** (string) — what the agent says when the contact picks up; introduces itself and states why it's calling. (`%call_intro%`)
+- **Acknowledge** (string) — short line said after the contact confirms they're the right person. (`%speaker_verification_acknowledge%`)
+- **Acknowledge on callback** (string) — variant of the acknowledgement used on scheduled callbacks. (`%speaker_verification_acknowledge_callback%`)
+- **Call screener handling** (string) — how the agent responds when asked "who's calling? what's this about?" before reaching the contact. (`%call_screener_prompt%`)
+- **IVR** (string) — which extension or department to navigate to when the call hits a phone-tree menu. (`%IVR_TARGET%`)
+- **Voicemail** (string, boolean) — what the agent leaves when the call reaches voicemail, or disable voicemail-leaving entirely. (`%voicemail_message%`, `%voicemail_disabled%`)
+- **Gatekeeper** (string) — message left with a human gatekeeper who isn't the target contact, and how the agent opens the request to transfer the call to them. (`%human_message%`, `%transfer_opening%`)
 
 **Incoming call opening**
 
@@ -26,9 +26,9 @@ The greeting sequence at the start of every inbound call.
 
 Things you configure:
 
-- **Welcome message** — what the agent says when the caller connects. (`%inbound_welcome_message%`)
-- **Whether to ask for contact first name** — prompt the caller for their first name as part of the greeting. (`%inbound_ask_for_name%`)
-- **Whether to ask for contact last name** — prompt the caller for their last name. (`%inbound_ask_for_last_name%`)
+- **Welcome message** (string) — what the agent says when the caller connects. (`%inbound_welcome_message%`)
+- **Whether to ask for contact first name** (boolean) — prompt the caller for their first name as part of the greeting. (`%inbound_ask_for_name%`)
+- **Whether to ask for contact last name** (boolean) — prompt the caller for their last name. (`%inbound_ask_for_last_name%`)
 
 **Contact discovery**
 
@@ -36,9 +36,9 @@ When the wrong person answers, the agent asks for the right contact before conti
 
 Things you configure:
 
-- **What the call is about** — context given to the person who answered when asking if they know the contact. (`%contact_discovery_ownership%`)
-- **Why the agent is looking for them** — reason given for needing to reach the contact. (`%contact_discovery_reason%`)
-- **Discovery for named contacts** — whether discovery runs even when the platform already has a name on file for the contact. (`%contact_discovery_for_named_contacts%`)
+- **What the call is about** (string) — context given to the person who answered when asking if they know the contact. (`%contact_discovery_ownership%`)
+- **Why the agent is looking for them** (string) — reason given for needing to reach the contact. (`%contact_discovery_reason%`)
+- **Discovery for named contacts** (boolean) — whether discovery runs even when the platform already has a name on file for the contact. (`%contact_discovery_for_named_contacts%`)
 
 **Meeting scheduling**
 
@@ -46,13 +46,13 @@ Books a meeting with the contact. Supports three modes: *voice* (book in-convers
 
 Things you configure:
 
-- **Enabled modes** — which of the three scheduling methods are available. (`%scheduling-via-voice-allowed%`, `%scheduling-via-link-allowed%`)
-- **Meeting type** — the kind of meeting being booked. (`%scheduling_meeting_type%`)
-- **Scheduling link** — the booking URL sent via SMS. (`%scheduling_link%`)
-- **Copy** — explainer and confirmation messages shown during scheduling, and SMS content. (related `%scheduling_…%` switches)
-- **Timezone requirement** — whether the agent must confirm the contact's timezone before booking.
-- **Convert on schedule** — whether a successful booking marks the contact as converted.
-- **Next goal** — which goal to transition to after scheduling completes. (`%post_scheduling_goal%`)
+- **Enabled modes** (boolean) — which of the three scheduling methods are available. (`%scheduling-via-voice-allowed%`, `%scheduling-via-link-allowed%`)
+- **Meeting type** (string) — the kind of meeting being booked. (`%scheduling_meeting_type%`)
+- **Scheduling link** (string) — the booking URL sent via SMS. (`%scheduling_link%`)
+- **Copy** (string) — explainer and confirmation messages shown during scheduling, and SMS content. (related `%scheduling_…%` switches)
+- **Timezone requirement** (boolean) — whether the agent must confirm the contact's timezone before booking.
+- **Convert on schedule** (boolean) — whether a successful booking marks the contact as converted.
+- **Next goal** (string) — which goal to transition to after scheduling completes. (`%post_scheduling_goal%`)
 
 ## Goals & flow
 
@@ -60,12 +60,12 @@ A goal is a single step in the conversation. The script's goals run sequentially
 
 Things you configure on each goal:
 
-- **Execution mode** — *say* (the agent says something) or *ask* (the agent asks and collects a value back). (`goal_type`)
-- **Generative vs scripted** — let the LLM rephrase the message naturally, or use the text verbatim. (`goal_type` ending in `_generative`)
-- **Nesting** — group child goals under a parent. (`goals`)
-- **Selection mode** — parent picks one child to run based on the situation rather than running them all. (`is_selection`, `choices`)
-- **Template** — start from a built-in goal template and customize. (`copy_from`)
-- **Enabled flag** — turn the goal off without removing it. (`enabled`)
+- **Execution mode** (enum) — *say* (the agent says something) or *ask* (the agent asks and collects a value back). (`goal_type`)
+- **Generative vs scripted** (boolean) — let the LLM rephrase the message naturally, or use the text verbatim. (`goal_type` ending in `_generative`)
+- **Nesting** (array) — group child goals under a parent. (`goals`)
+- **Selection mode** (boolean) — parent picks one child to run based on the situation rather than running them all. (`is_selection`, `choices`)
+- **Template** (string) — start from a built-in goal template and customize. (`copy_from`)
+- **Enabled flag** (boolean) — turn the goal off without removing it. (`enabled`)
 
 ## When a goal activates
 
@@ -73,27 +73,27 @@ Beyond the default sequential order, each goal can opt into different activation
 
 Things you configure:
 
-- **Conditions** — eligibility rules using script variables and previously collected values.
-- **Triggers** — user-intent phrases that reactively pull the goal in when the user says something matching, plus negative triggers to suppress unwanted matches.
-- **Proactive firing** — whether the agent can decide on its own when to bring up the goal (on by default).
-- **Priority** — overrides config order when multiple goals are eligible at the same time.
-- **Qualifiers** — gate other goals: this goal must be satisfied before its siblings or children become eligible.
-- **Transitions** — explicit branches from this goal to another, each named with the natural-language situation that should pick it. Can also assign or compute values during the transition.
-- **Repeat behavior** — once, indefinitely, or up to a max count; with cooldown before retrying after a failure.
+- **Conditions** (array) — eligibility rules using script variables and previously collected values.
+- **Triggers** (array) — user-intent phrases that reactively pull the goal in when the user says something matching, plus negative triggers to suppress unwanted matches.
+- **Proactive firing** (boolean) — whether the agent can decide on its own when to bring up the goal (on by default).
+- **Priority** (integer) — overrides config order when multiple goals are eligible at the same time.
+- **Qualifiers** (object) — gate other goals: this goal must be satisfied before its siblings or children become eligible.
+- **Transitions** (array) — explicit branches from this goal to another, each named with the natural-language situation that should pick it. Can also assign or compute values during the transition.
+- **Repeat behavior** (object) — once, indefinitely, or up to a max count; with cooldown before retrying after a failure.
 
 ## What the goal says
 
 Things you configure:
 
-- **Messages** — one or more variants of what the agent will say or use as a prompt. By default the agent rephrases them naturally. Each message supports:
-  - *Text* — the line itself. (`message`)
-  - *Conditions* — when this variant is picked. (`conditions`)
-  - *Objection-handler flag* — mark this variant as the one used when the user objects, rather than a regular ask. (`objection_handler`)
-  - *Generative* — whether the message should be said verbatim or used as instructions for the agent. (`generative`)
-- **Force exact wording** — bypass LLM rephrasing for compliance or scripted moments. (`force_exact_response`)
-- **Acknowledgement** — short filler after the goal completes ("got it", "perfect"); customizable or off. (`acknowledge`)
-- **Objection handling** — top-level messages used when the user refuses to answer, plus how many times to retry before moving on. (`objection_handling`, `objection_handling_attempts`)
-- **Interruptibility** — by default the user can interrupt the agent mid-sentence; mark critical goals (e.g. just before a transfer) uninterruptible. (`uninterruptible`)
+- **Messages** (array) — one or more variants of what the agent will say or use as a prompt. By default the agent rephrases them naturally. Each message supports:
+  - *Text* (string) — the line itself. (`message`)
+  - *Conditions* (array) — when this variant is picked. (`conditions`)
+  - *Objection-handler flag* (boolean) — mark this variant as the one used when the user objects, rather than a regular ask. (`objection_handler`)
+  - *Generative* (boolean) — whether the message should be said verbatim or used as instructions for the agent. (`generative`)
+- **Force exact wording** (boolean) — bypass LLM rephrasing for compliance or scripted moments. (`force_exact_response`)
+- **Acknowledgement** (string, boolean) — short filler after the goal completes ("got it", "perfect"); customizable or off. (`acknowledge`)
+- **Objection handling** (array, integer) — top-level messages used when the user refuses to answer, plus how many times to retry before moving on. (`objection_handling`, `objection_handling_attempts`)
+- **Interruptibility** (boolean) — by default the user can interrupt the agent mid-sentence; mark critical goals (e.g. just before a transfer) uninterruptible. (`uninterruptible`)
 
 ## Value collection
 
@@ -101,31 +101,31 @@ When a goal asks for something, you tell the platform what kind of value it expe
 
 Things you configure:
 
-- **Value type** — approval (yes/no), selection from choices, a named entity (email, phone, date, number, name, unit like money), or a custom type for free-form data. (`value_type`)
-- **Field name** — where the collected value is stored on the call (defaults to the goal name). (`detection_name`)
-- **Numeric range / unit type** — declarative constraints for number- and unit-typed values. (`options.range`, `options.unit_type`)
-- **Custom validation prompt** — for nuanced extraction or validation beyond declarative options. (`validation_prompt`)
-- **Triggering-message evaluation** — if the user already supplied the value in the message that triggered the goal, recognize that and skip re-asking. (`evaluate_on_trigger`)
+- **Value type** (enum) — approval (yes/no), selection from choices, a named entity (email, phone, date, number, name, unit like money), or a custom type for free-form data. (`value_type`)
+- **Field name** (string) — where the collected value is stored on the call (defaults to the goal name). (`detection_name`)
+- **Numeric range / unit type** (object, enum) — declarative constraints for number- and unit-typed values. (`options.range`, `options.unit_type`)
+- **Custom validation prompt** (string) — for nuanced extraction or validation beyond declarative options. (`validation_prompt`)
+- **Triggering-message evaluation** (boolean) — if the user already supplied the value in the message that triggered the goal, recognize that and skip re-asking. (`evaluate_on_trigger`)
 
 ## Fulfillment & tools
 
 How a goal *does things* beyond talking. The same execution primitives are exposed two ways:
 
-- **Tools** — the LLM decides when to call them mid-conversation. Each tool has a name, description, and parameter schema. (`options.llm_tools`)
-- **Fulfillment** — actions wired to platform events on the goal's lifecycle: when it's *triggered*, *performed*, *collected*, *completed*, or when the agent says a specific phrase. (`fulfillment[].timing`)
+- **Tools** (array) — the LLM decides when to call them mid-conversation. Each tool has a name, description, and parameter schema. (`options.llm_tools`)
+- **Fulfillment** (array) — actions wired to platform events on the goal's lifecycle: when it's *triggered*, *performed*, *collected*, *completed*, or when the agent says a specific phrase. (`fulfillment[].timing`)
 
 Action types available to both:
 
-- **Webhook** — POST to an external URL with custom headers and body; optionally map the response back into call state.
-- **SMS** — send a text via the configured messaging service, to the contact or any other number.
-- **CRM update** — push fields to HubSpot (and similar integrations).
-- **Hang up** — end the call after the current line or immediately.
-- **Forward call** — transfer the call to another number (the AI hands off after).
-- **Warm transfer** — place a parallel child call to merge in, with idle messages while waiting and a fallback message if it fails.
-- **Set values** — assign values into the call context.
-- **Update call result** — set the contact's outcome (qualified, converted, disqualified, do-not-call).
-- **Trigger another goal** — bring another goal into the flow.
-- **Override agent response or user query** — force a specific agent line or rewrite the user's query for the current turn.
+- **Webhook** (object) — POST to an external URL with custom headers and body; optionally map the response back into call state.
+- **SMS** (object) — send a text via the configured messaging service, to the contact or any other number.
+- **CRM update** (object) — push fields to HubSpot (and similar integrations).
+- **Hang up** (object) — end the call after the current line or immediately.
+- **Forward call** (object) — transfer the call to another number (the AI hands off after).
+- **Warm transfer** (object) — place a parallel child call to merge in, with idle messages while waiting and a fallback message if it fails.
+- **Set values** (object) — assign values into the call context.
+- **Update call result** (object) — set the contact's outcome (qualified, converted, disqualified, do-not-call).
+- **Trigger another goal** (object) — bring another goal into the flow.
+- **Override agent response or user query** (object) — force a specific agent line or rewrite the user's query for the current turn.
 
 **Automations**
 
@@ -150,9 +150,9 @@ Words and phrases the transcription engine might otherwise mishear — product n
 
 Things you configure per entry:
 
-- **The word or phrase** itself.
-- **Entity label** — optionally tag what kind of thing it is.
-- **Goal hint** — optionally bias the recognized phrase toward routing to a specific goal.
+- **The word or phrase** (string) itself.
+- **Entity label** (string) — optionally tag what kind of thing it is.
+- **Goal hint** (string) — optionally bias the recognized phrase toward routing to a specific goal.
 
 ## Experiments
 
@@ -160,7 +160,7 @@ A/B test groups defined at the script level.
 
 Things you configure per experiment:
 
-- **Name & description** — what's being tested.
-- **Enabled flag** — toggle the whole experiment without removing it.
-- **Test groups** — one or more variants, each with a name and the percentage of calls assigned.
-- **Per-group overrides** — voice settings (voice id, speed, volume), telephony settings (max dial seconds, area code preference), or goal-level changes applied only to that group.
+- **Name & description** (string) — what's being tested.
+- **Enabled flag** (boolean) — toggle the whole experiment without removing it.
+- **Test groups** (array) — one or more variants, each with a name and the percentage of calls assigned.
+- **Per-group overrides** (object) — voice settings (voice id, speed, volume), telephony settings (max dial seconds, area code preference), or goal-level changes applied only to that group.
