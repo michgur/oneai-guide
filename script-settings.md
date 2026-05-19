@@ -88,8 +88,6 @@ Things you configure:
 - **Messages** — one or more variants of what the agent will say or use as a prompt. By default the agent rephrases them naturally. Each message supports:
   - *Text* — the line itself. (`message`)
   - *Conditions* — when this variant is picked. (`conditions`)
-  - *Pre-message* — text spoken before the main line in the same turn (e.g. an acknowledgement or filler). (`pre_message`)
-  - *Explicit part* — the portion of the message that counts as the actual question, used to control where the user can interrupt. (`explicit_part`)
   - *Objection-handler flag* — mark this variant as the one used when the user objects, rather than a regular ask. (`objection_handler`)
   - *Generative* — whether the message should be said verbatim or used as instructions for the agent. (`generative`)
 - **Force exact wording** — bypass LLM rephrasing for compliance or scripted moments. (`force_exact_response`)
