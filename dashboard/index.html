@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmony — Agent & Script Settings</title>
+<style>
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-lighter: #E0E7FF;
+  --primary-bg: #EEF2FF;
+  --emerald: #10B981;
+  --emerald-light: #D1FAE5;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --bg: #F9FAFB;
+  --white: #FFFFFF;
+  --heading: #111827;
+  --body: #374151;
+  --secondary: #6B7280;
+  --border: #E5E7EB;
+  --border-focus: #A5B4FC;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 24px;
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --transition: 200ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--body);
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Top bar ===== */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.topbar-left { display: flex; align-items: center; gap: 24px; }
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 20px; font-weight: 700;
+  color: var(--primary); letter-spacing: -0.5px;
+  text-decoration: none;
+}
+.logo-icon {
+  width: 30px; height: 30px;
+  background: var(--primary-bg);
+  border-radius: var(--radius);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--secondary); }
+.breadcrumb a { color: var(--secondary); text-decoration: none; }
+.breadcrumb a:hover { color: var(--primary); }
+.breadcrumb-sep { color: var(--border); }
+.breadcrumb-current { color: var(--heading); font-weight: 600; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+
+.status-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.toggle-track { width: 40px; height: 22px; border-radius: 11px; background: var(--border); position: relative; transition: background var(--transition); }
+.toggle-track.active { background: var(--emerald); }
+.toggle-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--white); position: absolute; top: 2px; left: 2px; transition: transform var(--transition); box-shadow: var(--shadow-sm); }
+.toggle-track.active .toggle-thumb { transform: translateX(18px); }
+.toggle-label { font-size: 13px; font-weight: 600; }
+.toggle-label.active-label { color: var(--emerald); }
+.toggle-label.inactive-label { color: var(--secondary); }
+
+.user-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--primary-lighter); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+}
+
+/* ===== Agent header ===== */
+.agent-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.agent-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.agent-avatar {
+  width: 48px; height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--primary); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700;
+}
+.agent-info { flex: 1; }
+.agent-name { font-size: 20px; font-weight: 700; color: var(--heading); }
+.agent-role { font-size: 13px; color: var(--secondary); margin-top: 2px; }
+.agent-meta { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.meta-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: var(--radius-pill);
+  background: var(--primary-bg); color: var(--primary);
+  font-size: 12px; font-weight: 600;
+}
+.meta-badge.neutral { background: #F3F4F6; color: var(--body); }
+.meta-badge.emerald { background: var(--emerald-light); color: #065F46; }
+
+.agent-actions { display: flex; gap: 8px; }
+
+/* ===== Buttons ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 14px; font-weight: 600;
+  border: none; cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+}
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-light); box-shadow: var(--shadow-md); }
+.btn-outline { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-bg); }
+.btn-ghost { background: transparent; color: var(--body); border: 1px solid var(--border); }
+.btn-ghost:hover { background: var(--bg); border-color: var(--secondary); }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-danger-link { background: transparent; color: var(--red); border: none; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; padding: 0; }
+.btn-danger-link:hover { text-decoration: underline; }
+
+/* ===== Tab nav ===== */
+.tab-nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  position: sticky;
+  top: 56px;
+  z-index: 150;
+}
+.tab-nav-inner { max-width: 1200px; margin: 0 auto; display: flex; gap: 4px; }
+.tab-btn {
+  padding: 14px 20px;
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px; font-weight: 600;
+  color: var(--secondary); cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition);
+}
+.tab-btn:hover { color: var(--heading); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ===== Main ===== */
+.main-content { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ===== Setup/Ops two-column layout ===== */
+.setup-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.sub-nav {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  position: sticky;
+  top: 130px;
+}
+.sub-nav-item {
+  display: block;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  font-size: 14px; font-weight: 600;
+  color: var(--secondary); cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all var(--transition);
+}
+.sub-nav-item:hover { color: var(--heading); background: var(--bg); }
+.sub-nav-item.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-bg); }
+
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+
+.sub-content {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+}
+.sub-content + .sub-content { margin-top: 16px; }
+.sub-content-title { font-size: 18px; font-weight: 700; color: var(--heading); margin-bottom: 4px; }
+.sub-content-desc { font-size: 13px; color: var(--secondary); margin-bottom: 20px; }
+
+.subsection-title { font-size: 14px; font-weight: 700; color: var(--heading); margin: 20px 0 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+.subsection-title:first-child { margin-top: 0; }
+
+/* ===== Form elements ===== */
+.form-group { margin-bottom: 18px; }
+.form-group:last-child { margin-bottom: 0; }
+.form-label {
+  display: block;
+  font-size: 13px; font-weight: 600;
+  color: var(--heading);
+  margin-bottom: 6px;
+}
+.form-hint { font-size: 12px; color: var(--secondary); margin-top: 4px; }
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--white);
+  color: var(--body);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.form-textarea { resize: vertical; line-height: 1.5; min-height: 80px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+/* Voice display link in identity */
+.voice-link {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.voice-link:hover { border-color: var(--primary); background: var(--primary-bg); }
+.voice-link-info { display: flex; align-items: center; gap: 10px; }
+.voice-link-name { font-size: 14px; font-weight: 600; color: var(--heading); }
+.voice-link-meta { font-size: 12px; color: var(--secondary); }
+.voice-link-icon { color: var(--secondary); font-size: 14px; }
+
+/* ===== Toggle switch ===== */
+.toggle-wrap { display: flex; align-items: flex-start; gap: 12px; }
+.toggle-switch {
+  width: 40px; height: 22px;
+  border-radius: 11px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: background var(--transition);
+}
+.toggle-switch.on { background: var(--emerald); }
+.toggle-knob {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute; top: 2px; left: 2px;
+  transition: transform var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+.toggle-switch.on .toggle-knob { transform: translateX(18px); }
+.toggle-content { flex: 1; }
+.toggle-text { font-size: 14px; font-weight: 600; color: var(--heading); }
+.toggle-help { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+
+/* ===== Selectable cards ===== */
+.card-grid { display: grid; gap: 12px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.selectable-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  cursor: pointer;
+  background: var(--white);
+  transition: all var(--transition);
+}
+.selectable-card:hover { border-color: var(--primary-lighter); box-shadow: var(--shadow-sm); }
+.selectable-card.selected { border-color: var(--primary); background: var(--primary-bg); }
+.card-icon { font-size: 18px; margin-bottom: 6px; }
+.card-title { font-size: 14px; font-weight: 700; color: var(--heading); margin-bottom: 2px; }
+.card-desc { font-size: 12px; color: var(--secondary); line-height: 1.4; }
+
+/* Voice row in list */
+.voice-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all var(--transition);
+}
+.voice-row:hover { border-color: var(--primary-lighter); }
+.voice-row.selected { border-color: var(--primary); background: var(--primary-bg); }
+.voice-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+}
+.voice-row.selected .voice-radio { border-color: var(--primary); }
+.voice-row.selected .voice-radio::after {
+  content: ''; position: absolute; inset: 3px;
+  background: var(--primary); border-radius: 50%;
+}
+.voice-row-info { flex: 1; }
+.voice-row-name { font-size: 14px; font-weight: 700; color: var(--heading); }
+.voice-row-meta { font-size: 12px; color: var(--secondary); margin-top: 2px; }
+.voice-play {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ===== Stepper ===== */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  overflow: hidden;
+}
+.stepper button {
+  width: 36px; height: 38px;
+  background: transparent;
+  border: none;
+  font-size: 16px; font-weight: 700;
+  color: var(--body); cursor: pointer;
+  font-family: inherit;
+}
+.stepper button:hover { background: var(--bg); color: var(--primary); }
+.stepper input {
+  width: 70px;
+  height: 38px;
+  text-align: center;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  font-size: 14px; font-weight: 600;
+  font-family: inherit;
+  color: var(--heading);
+  background: var(--white);
+}
+.stepper input:focus { outline: none; background: var(--primary-bg); }
+.stepper-suffix { padding: 0 12px; font-size: 13px; color: var(--secondary); font-weight: 600; }
+
+/* ===== Settings table ===== */
+.settings-table { width: 100%; border-collapse: collapse; }
+.settings-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 11px; font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.settings-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--body);
+  vertical-align: top;
+}
+.settings-table tr:last-child td { border-bottom: none; }
+.settings-table .mono { font-family: var(--mono); font-size: 12px; color: var(--heading); }
+.settings-table .row-title { font-weight: 600; color: var(--heading); }
+
+/* ===== Paired card ===== */
+.paired-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.paired-row { display: flex; gap: 12px; margin-bottom: 8px; }
+.paired-row:last-child { margin-bottom: 0; }
+.paired-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+  width: 60px; flex-shrink: 0; padding-top: 2px;
+}
+.paired-label-q { color: var(--primary); }
+.paired-label-a { color: var(--emerald); }
+.paired-label-c { color: var(--amber); }
+.paired-label-n { color: var(--red); }
+.paired-text { font-size: 13px; color: var(--body); line-height: 1.5; flex: 1; }
+.paired-meta { font-size: 12px; color: var(--secondary); margin-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ===== Info banner ===== */
+.info-banner {
+  display: flex; gap: 10px;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-lighter);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #3730A3;
+}
+.info-banner-icon { flex-shrink: 0; }
+.info-banner strong { color: #3730A3; }
+
+/* ===== Pills ===== */
+.pill-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 600;
+  background: var(--white); color: var(--body);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.pill:hover { border-color: var(--primary-lighter); }
+.pill.selected { border-color: var(--primary); background: var(--primary-bg); color: var(--primary); }
+.pill.removable .x { color: var(--secondary); font-size: 14px; line-height: 1; }
+.pill.tag { background: var(--primary-bg); border-color: var(--primary-lighter); color: var(--primary); }
+.pill.tag-amber { background: var(--amber-light); border-color: var(--amber-light); color: #92400E; }
+.pill.tag-red { background: var(--red-light); border-color: var(--red-light); color: var(--red); }
+.pill.tag-emerald { background: var(--emerald-light); border-color: var(--emerald-light); color: #065F46; }
+.pill.tag-neutral { background: #F3F4F6; border-color: #E5E7EB; color: var(--body); }
+
+/* Day pills */
+.day-pill {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-size: 12px; font-weight: 700;
+  color: var(--secondary);
+  cursor: pointer;
+}
+.day-pill.selected { border-color: var(--primary); background: var(--primary); color: var(--white); }
+
+/* ===== Goal row ===== */
+.goal-list { display: flex; flex-direction: column; gap: 6px; }
+.goal-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+.goal-row.nested { margin-left: 28px; }
+.goal-drag { color: var(--secondary); font-size: 16px; cursor: grab; user-select: none; }
+.goal-name { flex: 1; font-weight: 600; color: var(--heading); font-size: 14px; }
+.goal-tags { display: flex; gap: 6px; }
+
+/* ===== Variable group ===== */
+.var-group {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.var-group-title { font-size: 13px; font-weight: 700; color: var(--heading); margin-bottom: 8px; }
+.var-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.var-item { font-size: 12px; color: var(--secondary); }
+.var-item code { font-family: var(--mono); font-size: 11px; color: var(--primary); background: var(--white); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border); }
+
+/* ===== Experiment ===== */
+.exp-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--white);
+}
+.exp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.exp-title { font-weight: 700; color: var(--heading); flex: 1; }
+.exp-desc { font-size: 13px; color: var(--secondary); margin-bottom: 12px; }
+.split-bar {
+  display: flex; height: 24px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.split-seg { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--white); }
+.split-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--secondary); }
+.split-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+
+/* ===== Misc ===== */
+.add-row-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  font-size: 13px; font-weight: 600;
+  color: var(--primary);
+  cursor: pointer; font-family: inherit;
+  margin-top: 10px;
+}
+.add-row-btn:hover { border-color: var(--primary); background: var(--primary-bg); }
+
+.action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.action-card {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+}
+.action-icon { font-size: 18px; flex-shrink: 0; }
+.action-body { flex: 1; }
+.action-title { font-size: 13px; font-weight: 700; color: var(--heading); margin-bottom: 2px; }
+.action-desc { font-size: 12px; color: var(--secondary); line-height: 1.4; }
+
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* Working hours grid */
+.hours-grid {
+  display: grid;
+  grid-template-columns: 60px 1fr 1fr 90px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+}
+.hours-day { font-size: 13px; font-weight: 600; color: var(--heading); }
+.hours-input { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; font-family: inherit; }
+.hours-grid.disabled .hours-input { background: var(--bg); color: var(--secondary); }
+
+/* Inner per-goal tabs */
+.goal-detail {
+  margin-top: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+}
+.goal-detail-head {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.goal-detail-head-label { font-size: 11px; font-weight: 700; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+.goal-detail-head-name { font-size: 15px; font-weight: 700; color: var(--heading); font-family: var(--mono); }
+.goal-tab-bar {
+  display: flex; gap: 4px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.goal-tab-btn {
+  padding: 12px 14px;
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px; font-weight: 600;
+  color: var(--secondary); cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.goal-tab-btn:hover { color: var(--heading); }
+.goal-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+.goal-tab-body { padding: 24px; }
+.goal-tab-panel { display: none; }
+.goal-tab-panel.active { display: block; }
+.goal-row.selected-goal { border-color: var(--primary); background: var(--primary-bg); }
+</style>
+</head>
+<body>
+
+<!-- ===== Topbar ===== -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="logo" href="#"><span class="logo-icon">◈</span> Harmony</a>
+    <div class="breadcrumb">
+      <a href="#">Agents</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Acme Onboarding Agent</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="status-toggle" onclick="this.querySelector('.toggle-track').classList.toggle('active');">
+      <span class="toggle-label active-label">Active</span>
+      <div class="toggle-track active"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="user-avatar">MG</div>
+  </div>
+</div>
+
+<!-- ===== Agent header ===== -->
+<div class="agent-header">
+  <div class="agent-header-inner">
+    <div class="agent-avatar">RY</div>
+    <div class="agent-info">
+      <div class="agent-name">Riley · Acme Onboarding</div>
+      <div class="agent-role">Outbound onboarding calls for new Acme customers</div>
+      <div class="agent-meta">
+        <span class="meta-badge emerald">● Active</span>
+        <span class="meta-badge neutral">Voice: Riley (warm, US)</span>
+      </div>
+    </div>
+    <div class="agent-actions">
+      <button class="btn btn-ghost btn-sm">Test call</button>
+      <button class="btn btn-primary btn-sm">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Top tabs ===== -->
+<div class="tab-nav">
+  <div class="tab-nav-inner">
+    <button class="tab-btn active" data-tab="agent">Agent</button>
+    <button class="tab-btn" data-tab="script">Script</button>
+  </div>
+</div>
+
+<div class="main-content">
+
+  <!-- ============================================================ -->
+  <!-- AGENT TAB                                                    -->
+  <!-- ============================================================ -->
+  <div class="tab-panel active" id="tab-agent">
+    <div class="setup-layout">
+      <nav class="sub-nav" id="agentNav">
+        <a class="sub-nav-item active" data-sub="agent-identity">Identity & responses</a>
+        <a class="sub-nav-item" data-sub="agent-voice">Voice</a>
+        <a class="sub-nav-item" data-sub="agent-dialer">Dialer</a>
+        <a class="sub-nav-item" data-sub="agent-telephony">Telephony</a>
+      </nav>
+      <div>
+
+        <!-- IDENTITY & RESPONSES -->
+        <div class="sub-panel active" id="agent-identity">
+          <div class="sub-content">
+            <div class="sub-content-title">Identity</div>
+            <div class="sub-content-desc">Who the agent is and how it should behave. These values shape the system message and are referenced throughout the conversation.</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Name</label>
+                <input class="form-input" value="Riley">
+                <div class="form-hint">Public-facing name used in conversation.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company name</label>
+                <input class="form-input" value="Acme">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Voice</label>
+              <div class="voice-link" onclick="switchAgentSub('agent-voice')">
+                <div class="voice-link-info">
+                  <span style="font-size:16px;">🎙</span>
+                  <div>
+                    <div class="voice-link-name">Riley</div>
+                    <div class="voice-link-meta">Female · US · Warm</div>
+                  </div>
+                </div>
+                <span class="voice-link-icon">↗</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Objective</label>
+              <textarea class="form-textarea" rows="3">Help new Acme customers complete their initial setup. Confirm they have what they need, walk through any blockers, and book an onboarding call if they want one.</textarea>
+              <div class="form-hint">Frames the agent's goal and shapes how it handles the conversation.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Guardrails</label>
+              <textarea class="form-textarea" rows="3">Never discuss pricing for plans above Pro tier. Never make commitments about feature timelines. Never confirm account details the user hasn't already stated.</textarea>
+              <div class="form-hint">Things the agent should never say or do, regardless of what the user asks.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Additional instructions</label>
+              <textarea class="form-textarea" rows="2" placeholder="Optional — freeform instructions appended to the system message. Normally left empty."></textarea>
+            </div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Responses</div>
+            <div class="sub-content-desc">Question→answer pairs that fire when the user asks something the goal flow wasn't designed to handle.</div>
+
+            <div class="subsection-title">Built-in responses</div>
+            <p class="form-hint" style="margin-bottom:10px;">Pre-configured answers for common questions. Override the answer text to customize.</p>
+            <div class="paired-card">
+              <div class="paired-row"><span class="paired-label paired-label-q">Q</span><span class="paired-text">"Are you a real person?" · "Am I talking to a bot?"</span></div>
+              <div class="paired-row"><span class="paired-label paired-label-a">A</span><span class="paired-text">I'm an AI assistant from Acme — happy to hand off to a teammate if you'd rather.</span></div>
+              <div class="paired-meta"><span class="pill tag-red">force exact wording</span></div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-row"><span class="paired-label paired-label-q">Q</span><span class="paired-text">"Where did you get my number?"</span></div>
+              <div class="paired-row"><span class="paired-label paired-label-a">A</span><span class="paired-text">You signed up for Acme — this is part of our onboarding follow-up.</span></div>
+            </div>
+
+            <div class="subsection-title">Custom responses</div>
+            <div class="paired-card">
+              <div class="paired-row"><span class="paired-label paired-label-q">Q</span><span class="paired-text">"How much does Acme cost?" · "What's the pricing like?" · "Is there a free tier?"</span></div>
+              <div class="paired-row"><span class="paired-label paired-label-a">A</span><span class="paired-text">Pricing starts at $29 per seat per month — happy to send our full pricing page after the call.</span></div>
+              <div class="paired-meta"><span>Conditions: always</span></div>
+            </div>
+            <div class="paired-card">
+              <div class="paired-row"><span class="paired-label paired-label-q">Q</span><span class="paired-text">"Where's my data stored?"</span></div>
+              <div class="paired-row"><span class="paired-label paired-label-a">A</span><span class="paired-text">All customer data lives in US-East. SOC 2 Type II report is available on request.</span></div>
+              <div class="paired-meta"><span>Conditions: segment = ENT</span><span>Negative triggers: "can you delete it"</span></div>
+            </div>
+            <button class="add-row-btn">+ Add response</button>
+          </div>
+        </div>
+
+        <!-- VOICE -->
+        <div class="sub-panel" id="agent-voice">
+          <div class="sub-content">
+            <div class="sub-content-title">Voice</div>
+            <div class="sub-content-desc">How the agent sounds.</div>
+
+            <div class="form-group">
+              <label class="form-label">Voice</label>
+
+              <div class="voice-row selected">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Riley</div>
+                  <div class="voice-row-meta">Female · US · Warm</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+              <div class="voice-row">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Jordan</div>
+                  <div class="voice-row-meta">Male · US · Neutral</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+              <div class="voice-row">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Avery</div>
+                  <div class="voice-row-meta">Female · UK · Bright</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+              <div class="voice-row">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Sam</div>
+                  <div class="voice-row-meta">Male · US · Gentle</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+              <div class="voice-row">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Morgan</div>
+                  <div class="voice-row-meta">Non-binary · US · Calm</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+              <div class="voice-row">
+                <div class="voice-radio"></div>
+                <div class="voice-row-info">
+                  <div class="voice-row-name">Priya</div>
+                  <div class="voice-row-meta">Female · India · Professional</div>
+                </div>
+                <button class="voice-play">▶</button>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Speed</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="1.0×">
+                  <button>+</button>
+                </div>
+                <div class="form-hint">Playback speed multiplier. Default 1.0×.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Volume</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="1.0×">
+                  <button>+</button>
+                </div>
+                <div class="form-hint">Volume multiplier. Default 1.0×.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIALER -->
+        <div class="sub-panel" id="agent-dialer">
+          <div class="sub-content">
+            <div class="sub-content-title">Dialer</div>
+            <div class="sub-content-desc">How and when the agent runs calls — dialer behavior across calls and limits on each running call.</div>
+
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content">
+                <div class="toggle-text">Agent enabled</div>
+                <div class="toggle-help">Master switch — when off, the agent doesn't dial at all.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Working hours</div>
+            <div class="sub-content-desc">Allowed call windows per day of the week, evaluated in the configured timezone.</div>
+
+            <div class="form-group">
+              <label class="form-label">Timezone</label>
+              <select class="form-select" style="max-width:320px;">
+                <option>America/Los_Angeles</option>
+                <option>America/New_York</option>
+                <option>Europe/London</option>
+                <option>Asia/Singapore</option>
+              </select>
+            </div>
+
+            <div class="hours-grid"><div class="hours-day">Mon</div><input class="hours-input" value="09:00"><input class="hours-input" value="18:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Tue</div><input class="hours-input" value="09:00"><input class="hours-input" value="18:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Wed</div><input class="hours-input" value="09:00"><input class="hours-input" value="18:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Thu</div><input class="hours-input" value="09:00"><input class="hours-input" value="18:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Fri</div><input class="hours-input" value="09:00"><input class="hours-input" value="17:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid disabled"><div class="hours-day">Sat</div><input class="hours-input" value="—" disabled><input class="hours-input" value="—" disabled><div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid disabled"><div class="hours-day">Sun</div><input class="hours-input" value="—" disabled><input class="hours-input" value="—" disabled><div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Blackout dates</div>
+            <div class="sub-content-desc">Date ranges during which no calls go out — holidays, freezes, planned downtime.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>From</th><th>To</th><th>Reason</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Dec 24, 2026</td><td>Jan 2, 2027</td><td>Year-end holidays</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td>Jul 4, 2026</td><td>Jul 4, 2026</td><td>US Independence Day</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td>Nov 26, 2026</td><td>Nov 27, 2026</td><td>Thanksgiving</td><td><button class="btn-danger-link">Remove</button></td></tr>
+              </tbody>
+            </table>
+            <button class="add-row-btn">+ Add blackout</button>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Dialing behavior</div>
+
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content">
+                <div class="toggle-text">Check DNC registry before dialing</div>
+                <div class="toggle-help">Skip numbers on the Do-Not-Call registry.</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Concurrency</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="25">
+                  <button>+</button>
+                </div>
+                <div class="form-hint">Maximum simultaneous outbound calls.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fresh vs. retry mix</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="70%">
+                  <button>+</button>
+                </div>
+                <div class="form-hint">Fraction of each batch dialing never-contacted contacts. Remainder retries.</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Retry limit</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="3">
+                  <button>+</button>
+                </div>
+                <div class="form-hint">Attempts per contact after a failure.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Retry intervals</label>
+                <div class="pill-row">
+                  <span class="pill tag removable">+ 4 hours <span class="x">×</span></span>
+                  <span class="pill tag removable">+ 1 day <span class="x">×</span></span>
+                  <span class="pill tag removable">+ 3 days <span class="x">×</span></span>
+                  <button class="pill" style="background:transparent;border-style:dashed;">+ Add</button>
+                </div>
+                <div class="form-hint">Delay before each retry.</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Contact dedup keys</label>
+              <div class="pill-row">
+                <span class="pill tag-neutral removable">phone <span class="x">×</span></span>
+                <span class="pill tag removable">email <span class="x">×</span></span>
+                <span class="pill tag removable">crm_contact_id <span class="x">×</span></span>
+                <button class="pill" style="background:transparent;border-style:dashed;">+ Add field</button>
+              </div>
+              <div class="form-hint">Additional fields beyond phone number used to identify a contact uniquely.</div>
+            </div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Hot transfer queue</div>
+            <div class="sub-content-desc">When a call transfers to a human, this is the team it routes to. Their working hours both gate dialing and decide whether hot transfers are available.</div>
+
+            <div class="form-group">
+              <label class="form-label">Routes to</label>
+              <select class="form-select" style="max-width:360px;">
+                <option>Onboarding specialists — team #4</option>
+                <option>Sales — inbound queue</option>
+                <option>Customer Success — west</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Team timezone</label>
+              <select class="form-select" style="max-width:320px;">
+                <option>America/Los_Angeles</option>
+                <option>America/New_York</option>
+                <option>Europe/London</option>
+              </select>
+            </div>
+
+            <div class="subsection-title">Team working hours</div>
+            <div class="hours-grid"><div class="hours-day">Mon</div><input class="hours-input" value="08:00"><input class="hours-input" value="17:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Tue</div><input class="hours-input" value="08:00"><input class="hours-input" value="17:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Wed</div><input class="hours-input" value="08:00"><input class="hours-input" value="17:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Thu</div><input class="hours-input" value="08:00"><input class="hours-input" value="17:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+            <div class="hours-grid"><div class="hours-day">Fri</div><input class="hours-input" value="08:00"><input class="hours-input" value="16:00"><div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div></div>
+
+            <div class="toggle-wrap" style="margin-top:14px;">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content">
+                <div class="toggle-text">Allow dialing outside team working hours</div>
+                <div class="toggle-help">Place calls even when no humans are available to take a transfer.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Per-call limits</div>
+
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label">Max call duration</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="900">
+                  <button>+</button>
+                  <span class="stepper-suffix">sec</span>
+                </div>
+                <div class="form-hint">Platform ends the call after this.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Silence cutoff</label>
+                <div class="stepper">
+                  <button>−</button>
+                  <input value="12">
+                  <button>+</button>
+                  <span class="stepper-suffix">sec</span>
+                </div>
+                <div class="form-hint">Continuous silence that ends a call.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Recording</label>
+                <div class="toggle-wrap" style="margin-top:6px;">
+                  <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                  <div class="toggle-content"><div class="toggle-text">Record calls</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TELEPHONY -->
+        <div class="sub-panel" id="agent-telephony">
+          <div class="sub-content">
+            <div class="sub-content-title">Telephony</div>
+            <div class="sub-content-desc">How calls are placed. By default we provision a managed Twilio subaccount; BYO Twilio is supported.</div>
+
+            <div class="form-group">
+              <label class="form-label">Mode</label>
+              <div class="card-grid card-grid-2">
+                <div class="selectable-card selected">
+                  <div class="card-title">Managed (default)</div>
+                  <div class="card-desc">We provision a Twilio subaccount — you don't manage credentials.</div>
+                </div>
+                <div class="selectable-card">
+                  <div class="card-title">BYO Twilio</div>
+                  <div class="card-desc">Provide your own SID, auth token, and number.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="subsection-title">BYO credentials</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Account SID</label>
+                <input class="form-input" placeholder="AC…" disabled>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Auth token</label>
+                <input class="form-input" type="password" placeholder="••••••••" disabled>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone number</label>
+              <input class="form-input" placeholder="+1 555 …" disabled>
+            </div>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Regulatory provisioning</div>
+            <div class="sub-content-desc">Carrier requirements for the regions you call. Some jurisdictions require registration before dialing can begin.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>Region</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="row-title">United States</td><td><span class="pill tag-emerald">● Provisioned</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+                <tr><td class="row-title">United Kingdom</td><td><span class="pill tag-emerald">● Provisioned</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+                <tr><td class="row-title">Germany</td><td><span class="pill tag-amber">Pending docs</span></td><td><button class="btn btn-ghost btn-sm">Continue</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Number management</div>
+            <div class="sub-content-desc">Acquire, assign, and retire phone numbers used as caller IDs.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>Number</th><th>Region</th><th>Assigned to</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="mono">+1 415 555 0142</td><td>US — CA</td><td>This agent</td><td><button class="btn-danger-link">Release</button></td></tr>
+                <tr><td class="mono">+1 212 555 0188</td><td>US — NY</td><td>This agent</td><td><button class="btn-danger-link">Release</button></td></tr>
+                <tr><td class="mono">+44 20 7946 0921</td><td>UK — London</td><td>Unassigned</td><td><button class="btn btn-ghost btn-sm">Assign</button></td></tr>
+              </tbody>
+            </table>
+            <button class="add-row-btn">+ Acquire number</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCRIPT TAB                                                   -->
+  <!-- ============================================================ -->
+  <div class="tab-panel" id="tab-script">
+    <div class="setup-layout">
+      <nav class="sub-nav" id="scriptNav">
+        <a class="sub-nav-item active" data-sub="script-builtin">Built-in goals</a>
+        <a class="sub-nav-item" data-sub="script-flow">Goals & flow</a>
+        <a class="sub-nav-item" data-sub="script-automations">Post-call automations</a>
+        <a class="sub-nav-item" data-sub="script-vars">Variables</a>
+        <a class="sub-nav-item" data-sub="script-vocab">Custom vocabulary</a>
+        <a class="sub-nav-item" data-sub="script-exp">Experiments</a>
+      </nav>
+      <div>
+
+        <!-- BUILT-IN GOALS -->
+        <div class="sub-panel active" id="script-builtin">
+
+          <!-- Outgoing call opening -->
+          <div class="sub-content">
+            <div class="sub-content-title">Outgoing call opening</div>
+            <div class="sub-content-desc">Runs at the start of every outbound call. The agent introduces itself, confirms it has the right party, and navigates any obstacles before reaching the contact.</div>
+
+            <div class="form-group">
+              <label class="form-label">Call intro</label>
+              <textarea class="form-textarea" rows="2">Hi, this is Riley from Acme. I'm calling about your new account — is this {contact_name}?</textarea>
+              <div class="form-hint">What the agent says when the contact picks up.</div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Acknowledge</label>
+                <input class="form-input" value="Great, thanks for confirming.">
+                <div class="form-hint">Short line said after the contact confirms.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Acknowledge on callback</label>
+                <input class="form-input" value="Thanks for taking my callback.">
+                <div class="form-hint">Variant used on scheduled callbacks.</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Call screener handling</label>
+              <textarea class="form-textarea" rows="2">If they ask what this is about, say it's a brief onboarding check-in scheduled with {contact_name}.</textarea>
+              <div class="form-hint">How the agent responds to "who's calling? what's this about?".</div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">IVR target</label>
+                <input class="form-input" value="extension 412 — Customer Success">
+                <div class="form-hint">Extension or department to navigate to when the call hits a phone-tree menu.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Voicemail message</label>
+                <input class="form-input" value="Hi {contact_name}, this is Riley from Acme — I'll try you again later this week.">
+              </div>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content">
+                <div class="toggle-text">Disable voicemail-leaving entirely</div>
+                <div class="toggle-help">When on, the agent hangs up instead of leaving a message.</div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:18px;">
+              <div class="form-group">
+                <label class="form-label">Gatekeeper message</label>
+                <input class="form-input" value="Could you let {contact_name} know Riley from Acme called about their onboarding?">
+                <div class="form-hint">Message left with a human gatekeeper who isn't the target contact.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Transfer opening</label>
+                <input class="form-input" value="Would you be able to put me through to {contact_name}?">
+                <div class="form-hint">How the agent opens a request to transfer the call.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Incoming call opening -->
+          <div class="sub-content">
+            <div class="sub-content-title">Incoming call opening</div>
+            <div class="sub-content-desc">The greeting sequence at the start of every inbound call.</div>
+
+            <div class="form-group">
+              <label class="form-label">Welcome message</label>
+              <textarea class="form-textarea" rows="2">Thanks for calling Acme — this is Riley, how can I help?</textarea>
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content"><div class="toggle-text">Ask for contact first name</div></div>
+            </div>
+            <div class="toggle-wrap" style="margin-top:10px;">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content"><div class="toggle-text">Ask for contact last name</div></div>
+            </div>
+          </div>
+
+          <!-- Contact discovery -->
+          <div class="sub-content">
+            <div class="sub-content-title">Contact discovery</div>
+            <div class="sub-content-desc">When the wrong person answers, the agent asks for the right contact before continuing.</div>
+
+            <div class="form-group">
+              <label class="form-label">What the call is about</label>
+              <input class="form-input" value="It's about an account they recently set up with Acme.">
+              <div class="form-hint">Context given to the person who answered when asking if they know the contact.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Why we're looking for them</label>
+              <input class="form-input" value="We're walking new customers through their initial setup.">
+            </div>
+            <div class="toggle-wrap">
+              <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content">
+                <div class="toggle-text">Run discovery even for already-named contacts</div>
+                <div class="toggle-help">When on, discovery runs even if the platform already has a name on file.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meeting scheduling -->
+          <div class="sub-content">
+            <div class="sub-content-title">Meeting scheduling</div>
+            <div class="sub-content-desc">Books a meeting with the contact. Three modes — voice, SMS link, callback.</div>
+
+            <div class="form-group">
+              <label class="form-label">Enabled modes</label>
+              <div class="pill-row">
+                <div class="pill selected">✓ Voice</div>
+                <div class="pill selected">✓ SMS link</div>
+                <div class="pill">Callback</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Meeting type</label>
+                <input class="form-input" value="30-min onboarding call">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Scheduling link</label>
+                <input class="form-input" value="https://cal.acme.com/onboarding">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Explainer copy</label>
+              <textarea class="form-textarea" rows="2">I can either book you a slot now, or text you a link you can fill in later — what works better?</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmation copy</label>
+              <textarea class="form-textarea" rows="2">Perfect — you're booked for {meeting_scheduled}. You'll get a calendar invite shortly.</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">SMS content</label>
+              <textarea class="form-textarea" rows="2">Hi {contact_name}, here's the link to book your Acme onboarding call: {scheduling_link}</textarea>
+            </div>
+
+            <div class="toggle-wrap">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content"><div class="toggle-text">Confirm contact timezone before booking</div></div>
+            </div>
+            <div class="toggle-wrap" style="margin-top:10px;">
+              <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              <div class="toggle-content"><div class="toggle-text">Mark contact as converted on successful booking</div></div>
+            </div>
+
+            <div class="form-group" style="margin-top:18px;">
+              <label class="form-label">Next goal after scheduling</label>
+              <select class="form-select">
+                <option>wrap_up</option>
+                <option>collect_feedback</option>
+                <option>(end call)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- GOALS & FLOW -->
+        <div class="sub-panel" id="script-flow">
+          <div class="sub-content">
+            <div class="sub-content-title">Goals & flow</div>
+            <div class="sub-content-desc">Goals run sequentially by default. Drag to reorder; nest children under a parent. Click a goal to edit it.</div>
+
+            <div class="goal-list">
+              <div class="goal-row" data-goal="speaker_verification">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">speaker_verification</span>
+                <div class="goal-tags">
+                  <span class="pill tag-neutral">template</span>
+                  <span class="pill tag">say · generative</span>
+                </div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row selected-goal" data-goal="qualify_company">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">qualify_company</span>
+                <div class="goal-tags">
+                  <span class="pill tag">ask · generative</span>
+                </div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row" data-goal="route_by_segment">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">selection: route_by_segment</span>
+                <div class="goal-tags">
+                  <span class="pill tag-amber">selection</span>
+                </div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row nested" data-goal="smb_path">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">→ smb_path</span>
+                <div class="goal-tags"><span class="pill tag">say · generative</span></div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row nested" data-goal="enterprise_path">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">→ enterprise_path</span>
+                <div class="goal-tags"><span class="pill tag">say · scripted</span></div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row" data-goal="scheduling">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">scheduling</span>
+                <div class="goal-tags">
+                  <span class="pill tag-neutral">template</span>
+                  <span class="pill tag">ask · generative</span>
+                </div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row" data-goal="collect_email">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">collect_email</span>
+                <div class="goal-tags"><span class="pill tag">ask · scripted</span></div>
+                <div class="toggle-switch" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="goal-row" data-goal="wrap_up">
+                <span class="goal-drag">⋮⋮</span>
+                <span class="goal-name">wrap_up</span>
+                <div class="goal-tags"><span class="pill tag">say · generative</span></div>
+                <div class="toggle-switch on" onclick="event.stopPropagation(); this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+            </div>
+            <button class="add-row-btn">+ Add goal</button>
+
+            <!-- Per-goal detail -->
+            <div class="goal-detail">
+              <div class="goal-detail-head">
+                <span class="goal-detail-head-label">Editing</span>
+                <span class="goal-detail-head-name">qualify_company</span>
+              </div>
+              <div class="goal-tab-bar" id="goalTabBar">
+                <button class="goal-tab-btn active" data-gt="gt-overview">Overview</button>
+                <button class="goal-tab-btn" data-gt="gt-activation">Activation</button>
+                <button class="goal-tab-btn" data-gt="gt-messages">Messages</button>
+                <button class="goal-tab-btn" data-gt="gt-values">Value collection</button>
+                <button class="goal-tab-btn" data-gt="gt-transitions">Transitions</button>
+                <button class="goal-tab-btn" data-gt="gt-fulfill">Fulfillment & tools</button>
+              </div>
+              <div class="goal-tab-body">
+
+                <!-- OVERVIEW -->
+                <div class="goal-tab-panel active" id="gt-overview">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Execution mode</label>
+                      <select class="form-select">
+                        <option>Ask (collects a value)</option>
+                        <option>Say (agent speaks)</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Generative vs. scripted</label>
+                      <select class="form-select">
+                        <option>Generative — LLM rephrases</option>
+                        <option>Scripted — verbatim</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Template</label>
+                    <select class="form-select">
+                      <option>None</option>
+                      <option>Collect phone</option>
+                      <option>Collect email</option>
+                      <option>Call merge</option>
+                    </select>
+                  </div>
+                  <div class="toggle-wrap">
+                    <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content"><div class="toggle-text">Enabled</div></div>
+                  </div>
+                </div>
+
+                <!-- ACTIVATION -->
+                <div class="goal-tab-panel" id="gt-activation">
+                  <div class="subsection-title">Conditions</div>
+                  <p class="form-hint" style="margin-bottom:8px;">Eligibility rules using script variables and previously collected values.</p>
+                  <div class="paired-card">
+                    <div class="paired-row">
+                      <span class="paired-label paired-label-c">If</span>
+                      <span class="paired-text">call_type = "outbound" AND speaker_verification = approved</span>
+                    </div>
+                  </div>
+                  <button class="add-row-btn">+ Add condition</button>
+
+                  <div class="subsection-title">Triggers</div>
+                  <p class="form-hint" style="margin-bottom:8px;">User-intent phrases that reactively pull this goal in.</p>
+                  <div class="pill-row">
+                    <div class="pill tag removable">"tell me about your company" <span class="x">×</span></div>
+                    <div class="pill tag removable">"how big is the team" <span class="x">×</span></div>
+                    <div class="pill tag removable">"what do you do" <span class="x">×</span></div>
+                    <button class="pill" style="background:transparent;border-style:dashed;">+ Add trigger</button>
+                  </div>
+
+                  <div class="subsection-title">Negative triggers</div>
+                  <p class="form-hint" style="margin-bottom:8px;">Phrases that should suppress an otherwise-matching trigger.</p>
+                  <div class="pill-row">
+                    <div class="pill tag-red removable">"not interested" <span class="x">×</span></div>
+                    <div class="pill tag-red removable">"already a customer" <span class="x">×</span></div>
+                    <button class="pill" style="background:transparent;border-style:dashed;">+ Add negative trigger</button>
+                  </div>
+
+                  <div class="divider"></div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Priority</label>
+                      <input class="form-input" value="50">
+                      <div class="form-hint">Overrides config order when multiple goals are eligible at once.</div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Repeat behavior</label>
+                      <select class="form-select">
+                        <option>Once</option>
+                        <option>Up to max count</option>
+                        <option>Indefinitely</option>
+                      </select>
+                      <div class="form-hint">Cooldown: 30s before retrying after a failure.</div>
+                    </div>
+                  </div>
+                  <div class="toggle-wrap">
+                    <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content">
+                      <div class="toggle-text">Proactive firing</div>
+                      <div class="toggle-help">Agent can decide on its own when to bring up this goal.</div>
+                    </div>
+                  </div>
+                  <div class="toggle-wrap" style="margin-top:10px;">
+                    <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content">
+                      <div class="toggle-text">Qualifier</div>
+                      <div class="toggle-help">This goal must be satisfied before its siblings or children become eligible.</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- TRANSITIONS -->
+                <div class="goal-tab-panel" id="gt-transitions">
+                  <p class="form-hint" style="margin-bottom:14px;">Explicit branches from this goal to another, picked by natural-language situation. May also assign or compute values during the transition.</p>
+                  <table class="settings-table">
+                    <thead><tr><th>When</th><th>Go to</th><th>Assign</th><th></th></tr></thead>
+                    <tbody>
+                      <tr><td>"They mention 500+ employees"</td><td class="mono">enterprise_path</td><td>segment = "ENT"</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                      <tr><td>"They mention under 50 employees"</td><td class="mono">smb_path</td><td>segment = "SMB"</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                      <tr><td>"They refuse to share size"</td><td class="mono">objection_handler</td><td>—</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                    </tbody>
+                  </table>
+                  <button class="add-row-btn">+ Add transition</button>
+                </div>
+
+                <!-- MESSAGES -->
+                <div class="goal-tab-panel" id="gt-messages">
+                  <div class="subsection-title">Message variants</div>
+
+                  <div class="paired-card">
+                    <div class="paired-row"><span class="paired-label paired-label-q">Pre</span><span class="paired-text">So I can tailor the rest of this —</span></div>
+                    <div class="paired-row"><span class="paired-label paired-label-a">Text</span><span class="paired-text">roughly how big is the team using Acme?</span></div>
+                    <div class="paired-row"><span class="paired-label paired-label-c">Explicit</span><span class="paired-text">"roughly how big is the team using Acme?"</span></div>
+                    <div class="paired-meta">
+                      <span class="pill tag-emerald">generative</span>
+                      <span>Conditions: default variant</span>
+                    </div>
+                  </div>
+
+                  <div class="paired-card">
+                    <div class="paired-row"><span class="paired-label paired-label-a">Text</span><span class="paired-text">Got it. And what's the headcount over there — ballpark is fine.</span></div>
+                    <div class="paired-meta">
+                      <span class="pill tag-emerald">generative</span>
+                      <span>Conditions: turn_number &gt; 6</span>
+                    </div>
+                  </div>
+
+                  <div class="paired-card">
+                    <div class="paired-row"><span class="paired-label paired-label-n">Objection</span><span class="paired-text">Totally fair — even a rough range helps me point you to the right resources.</span></div>
+                    <div class="paired-meta">
+                      <span class="pill tag-red">objection handler</span>
+                      <span class="pill tag-emerald">generative</span>
+                    </div>
+                  </div>
+
+                  <button class="add-row-btn">+ Add message variant</button>
+
+                  <div class="divider"></div>
+                  <div class="subsection-title">Goal-level settings</div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Acknowledgement after completion</label>
+                      <input class="form-input" value="Got it.">
+                      <div class="form-hint">Short filler like "got it", "perfect". Leave blank to disable.</div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Objection handling attempts</label>
+                      <input class="form-input" value="2">
+                      <div class="form-hint">Retries before moving on.</div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Top-level objection handling</label>
+                    <textarea class="form-textarea" rows="2">If they refuse outright, acknowledge briefly and move on to scheduling.</textarea>
+                  </div>
+                  <div class="toggle-wrap">
+                    <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content">
+                      <div class="toggle-text">Force exact wording</div>
+                      <div class="toggle-help">Bypass LLM rephrasing for compliance moments.</div>
+                    </div>
+                  </div>
+                  <div class="toggle-wrap" style="margin-top:10px;">
+                    <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content">
+                      <div class="toggle-text">Uninterruptible</div>
+                      <div class="toggle-help">User can't interrupt the agent mid-sentence — use for critical moments (e.g. just before a transfer).</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- VALUE COLLECTION -->
+                <div class="goal-tab-panel" id="gt-values">
+                  <div class="form-group">
+                    <label class="form-label">Value type</label>
+                    <div class="card-grid card-grid-4">
+                      <div class="selectable-card"><div class="card-title">Approval</div><div class="card-desc">Yes / no.</div></div>
+                      <div class="selectable-card"><div class="card-title">Selection</div><div class="card-desc">Pick from choices.</div></div>
+                      <div class="selectable-card selected"><div class="card-title">Entity</div><div class="card-desc">Named: email, phone, date, number, name, unit.</div></div>
+                      <div class="selectable-card"><div class="card-title">Custom</div><div class="card-desc">Free-form with a validation prompt.</div></div>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Field name</label>
+                      <input class="form-input" value="company_size">
+                      <div class="form-hint">Where the collected value is stored. Defaults to the goal name.</div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Entity / unit type</label>
+                      <select class="form-select">
+                        <option>number</option>
+                        <option>email</option>
+                        <option>phone</option>
+                        <option>date</option>
+                        <option>name</option>
+                        <option>money</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Numeric range</label>
+                    <div class="form-row">
+                      <input class="form-input" value="1" placeholder="min">
+                      <input class="form-input" value="100000" placeholder="max">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Custom validation prompt</label>
+                    <textarea class="form-textarea" rows="2">Extract an approximate headcount. If the user says "around 50" or "fifty-ish", record 50. Reject answers that don't reference people or a number.</textarea>
+                  </div>
+                  <div class="toggle-wrap">
+                    <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+                    <div class="toggle-content">
+                      <div class="toggle-text">Evaluate on trigger</div>
+                      <div class="toggle-help">If the user already supplied the value in the triggering message, skip re-asking.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FULFILLMENT & TOOLS -->
+                <div class="goal-tab-panel" id="gt-fulfill">
+                  <div class="subsection-title">Tools</div>
+                  <p class="form-hint" style="margin-bottom:10px;">The LLM decides when to call these mid-conversation.</p>
+                  <table class="settings-table">
+                    <thead><tr><th>Name</th><th>Description</th><th>Parameters</th><th></th></tr></thead>
+                    <tbody>
+                      <tr>
+                        <td class="mono">lookup_account_status</td>
+                        <td>Check if the contact's account is fully provisioned.</td>
+                        <td class="mono">{ contact_id: string }</td>
+                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                      </tr>
+                      <tr>
+                        <td class="mono">send_setup_link</td>
+                        <td>SMS the contact a one-time setup link.</td>
+                        <td class="mono">{ phone: string }</td>
+                        <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button class="add-row-btn">+ Add tool</button>
+
+                  <div class="subsection-title">Fulfillment</div>
+                  <p class="form-hint" style="margin-bottom:10px;">Actions wired to lifecycle events: <em>triggered</em>, <em>performed</em>, <em>collected</em>, <em>completed</em>, or when the agent says a specific phrase.</p>
+                  <table class="settings-table">
+                    <thead><tr><th>Timing</th><th>Action</th><th>Details</th><th></th></tr></thead>
+                    <tbody>
+                      <tr><td><span class="pill tag">collected</span></td><td>Set values</td><td>segment = computed_segment</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                      <tr><td><span class="pill tag">completed</span></td><td>CRM update</td><td>HubSpot · company_size, segment</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                      <tr><td><span class="pill tag">on phrase</span></td><td>Webhook</td><td>"transferring you now" → POST /transfer</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                    </tbody>
+                  </table>
+                  <button class="add-row-btn">+ Add fulfillment</button>
+
+                  <div class="divider"></div>
+                  <div class="subsection-title">Action catalog</div>
+                  <p class="form-hint" style="margin-bottom:12px;">Available as both tools and fulfillment actions.</p>
+                  <div class="action-grid">
+                    <div class="action-card"><div class="action-icon">🔗</div><div class="action-body"><div class="action-title">Webhook</div><div class="action-desc">POST to an external URL; optionally map response back into call state.</div></div></div>
+                    <div class="action-card"><div class="action-icon">💬</div><div class="action-body"><div class="action-title">SMS</div><div class="action-desc">Send a text via the messaging service.</div></div></div>
+                    <div class="action-card"><div class="action-icon">📇</div><div class="action-body"><div class="action-title">CRM update</div><div class="action-desc">Push fields to HubSpot and similar integrations.</div></div></div>
+                    <div class="action-card"><div class="action-icon">☎️</div><div class="action-body"><div class="action-title">Hang up</div><div class="action-desc">End the call after the current line or immediately.</div></div></div>
+                    <div class="action-card"><div class="action-icon">↪︎</div><div class="action-body"><div class="action-title">Forward call</div><div class="action-desc">Transfer the call to another number (AI hands off after).</div></div></div>
+                    <div class="action-card"><div class="action-icon">🤝</div><div class="action-body"><div class="action-title">Warm transfer</div><div class="action-desc">Parallel child call merged in, with idle + fallback messages.</div></div></div>
+                    <div class="action-card"><div class="action-icon">⚙️</div><div class="action-body"><div class="action-title">Set values</div><div class="action-desc">Assign values into the call context.</div></div></div>
+                    <div class="action-card"><div class="action-icon">🎯</div><div class="action-body"><div class="action-title">Update call result</div><div class="action-desc">Mark contact as qualified, converted, disqualified, or DNC.</div></div></div>
+                    <div class="action-card"><div class="action-icon">➡️</div><div class="action-body"><div class="action-title">Trigger another goal</div><div class="action-desc">Bring another goal into the flow.</div></div></div>
+                    <div class="action-card"><div class="action-icon">✎</div><div class="action-body"><div class="action-title">Override response or query</div><div class="action-desc">Force a specific agent line or rewrite the user's query for this turn.</div></div></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- POST-CALL AUTOMATIONS -->
+        <div class="sub-panel" id="script-automations">
+          <div class="sub-content">
+            <div class="sub-content-title">Post-call automations</div>
+            <div class="sub-content-desc">Actions that run outside the real-time call loop — fired at end-of-call or end-of-sequence. Use them for anything you'd otherwise do manually after a call.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>Name</th><th>Trigger</th><th>Action</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="row-title">Push call outcome to HubSpot</td><td><span class="pill tag">end-of-call</span></td><td>CRM update · contact + deal fields</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                <tr><td class="row-title">LLM summary over transcript</td><td><span class="pill tag">end-of-call</span></td><td>LLM query · save to call_summary</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                <tr><td class="row-title">Notify rep on Slack</td><td><span class="pill tag">end-of-call</span></td><td>Webhook · POST to internal Slack proxy</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+                <tr><td class="row-title">Mark DNC on hard refusal</td><td><span class="pill tag-amber">end-of-sequence</span></td><td>Update call result · do-not-call</td><td><button class="btn btn-ghost btn-sm">Edit</button></td></tr>
+              </tbody>
+            </table>
+            <button class="add-row-btn">+ Add automation</button>
+          </div>
+        </div>
+
+        <!-- VARIABLES -->
+        <div class="sub-panel" id="script-vars">
+          <div class="sub-content">
+            <div class="sub-content-title">Dynamic variables</div>
+            <div class="sub-content-desc">Defined by you, with defaults set here and per-call overrides at call creation.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>Name</th><th>Default</th><th>Description</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="mono">product_name</td><td>Acme</td><td>Product the agent is calling about.</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">signup_date</td><td>(per-call)</td><td>When the contact signed up.</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">plan_tier</td><td>starter</td><td>Plan the contact is on.</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">csm_name</td><td>Riley</td><td>Customer success manager assigned.</td><td><button class="btn-danger-link">Remove</button></td></tr>
+              </tbody>
+            </table>
+            <button class="add-row-btn">+ Add variable</button>
+          </div>
+
+          <div class="sub-content">
+            <div class="sub-content-title">Read-only runtime variables</div>
+            <div class="sub-content-desc">Platform-exposed values useful in conditions and message templates.</div>
+
+            <div class="var-group">
+              <div class="var-group-title">Time & schedule</div>
+              <div class="var-list">
+                <div class="var-item"><code>today</code> — current date</div>
+                <div class="var-item"><code>now</code> — current time</div>
+                <div class="var-item"><code>this_week</code> — current week</div>
+                <div class="var-item"><code>in_transfer_working_hours</code> — within hot-transfer hours</div>
+              </div>
+            </div>
+
+            <div class="var-group">
+              <div class="var-group-title">Conversation state</div>
+              <div class="var-list">
+                <div class="var-item"><code>turn_number</code> — current turn</div>
+                <div class="var-item"><code>user_message</code> — last user message (raw + lowercase)</div>
+                <div class="var-item"><code>call_type</code> — inbound or outbound</div>
+              </div>
+            </div>
+
+            <div class="var-group">
+              <div class="var-group-title">Contact</div>
+              <div class="var-list">
+                <div class="var-item"><code>contact_name</code> — first / last / full</div>
+                <div class="var-item"><code>phone</code> — phone number</div>
+                <div class="var-item"><code>timezone_name</code> — contact's timezone</div>
+                <div class="var-item"><code>contact_source</code> — where they came from</div>
+              </div>
+            </div>
+
+            <div class="var-group">
+              <div class="var-group-title">Outcome state</div>
+              <div class="var-list">
+                <div class="var-item"><code>meeting_scheduled</code> — local + UTC times</div>
+                <div class="var-item"><code>voicemail_count</code> — voicemails left</div>
+                <div class="var-item"><code>callback_requested</code> — callback flag</div>
+                <div class="var-item"><code>contact_discovered</code> — new contact found</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VOCAB -->
+        <div class="sub-panel" id="script-vocab">
+          <div class="sub-content">
+            <div class="sub-content-title">Custom vocabulary</div>
+            <div class="sub-content-desc">Words and phrases the transcription engine might otherwise mishear — product names, brand terms, jargon.</div>
+
+            <table class="settings-table">
+              <thead><tr><th>Word / phrase</th><th>Entity label</th><th>Goal hint</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="mono">Acme</td><td>brand</td><td>—</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">FleetView</td><td>product</td><td>qualify_company</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">HubSpot</td><td>integration</td><td>—</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">SOC 2</td><td>compliance</td><td>—</td><td><button class="btn-danger-link">Remove</button></td></tr>
+                <tr><td class="mono">Cal dot com</td><td>scheduling</td><td>scheduling</td><td><button class="btn-danger-link">Remove</button></td></tr>
+              </tbody>
+            </table>
+            <button class="add-row-btn">+ Add vocabulary entry</button>
+          </div>
+        </div>
+
+        <!-- EXPERIMENTS -->
+        <div class="sub-panel" id="script-exp">
+          <div class="sub-content">
+            <div class="sub-content-title">Experiments</div>
+            <div class="sub-content-desc">A/B test groups defined at the script level.</div>
+
+            <div class="exp-card">
+              <div class="exp-head">
+                <div class="exp-title">Warmer intro line</div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="exp-desc">Test a softer call_intro variant against the current control.</div>
+              <div class="split-bar">
+                <div class="split-seg" style="width:50%;background:var(--secondary);">Control 50%</div>
+                <div class="split-seg" style="width:50%;background:var(--primary);">Variant A 50%</div>
+              </div>
+              <div class="split-legend">
+                <span><span class="dot" style="background:var(--secondary);"></span>Control — current intro</span>
+                <span><span class="dot" style="background:var(--primary);"></span>Variant A — softer intro override</span>
+              </div>
+            </div>
+
+            <div class="exp-card">
+              <div class="exp-head">
+                <div class="exp-title">Faster voice for SMB segment</div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="exp-desc">Per-group voice override — bumping speed to 1.1×.</div>
+              <div class="split-bar">
+                <div class="split-seg" style="width:70%;background:var(--secondary);">Control 70%</div>
+                <div class="split-seg" style="width:30%;background:var(--emerald);">Variant 30%</div>
+              </div>
+              <div class="split-legend">
+                <span><span class="dot" style="background:var(--secondary);"></span>Control — default voice</span>
+                <span><span class="dot" style="background:var(--emerald);"></span>Variant — voice speed 1.1×, volume 1.1×</span>
+              </div>
+            </div>
+
+            <div class="exp-card">
+              <div class="exp-head">
+                <div class="exp-title">Aggressive dial timeout</div>
+                <div class="toggle-switch" onclick="this.classList.toggle('on')"><div class="toggle-knob"></div></div>
+              </div>
+              <div class="exp-desc">Telephony override — shorter max dial seconds and local area-code preference.</div>
+              <div class="split-bar">
+                <div class="split-seg" style="width:80%;background:var(--secondary);">Control 80%</div>
+                <div class="split-seg" style="width:20%;background:var(--amber);">Variant 20%</div>
+              </div>
+              <div class="split-legend">
+                <span><span class="dot" style="background:var(--secondary);"></span>Control — 25s dial, no area preference</span>
+                <span><span class="dot" style="background:var(--amber);"></span>Variant — 15s dial, match contact area code</span>
+              </div>
+            </div>
+
+            <button class="add-row-btn">+ New experiment</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Top-level tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tabId = btn.dataset.tab;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+  });
+});
+
+// Sub-nav switching
+['agentNav', 'scriptNav'].forEach(navId => {
+  const nav = document.getElementById(navId);
+  if (!nav) return;
+  nav.querySelectorAll('.sub-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      nav.querySelectorAll('.sub-nav-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const target = item.dataset.sub;
+      const container = nav.parentElement;
+      container.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(target).classList.add('active');
+    });
+  });
+});
+
+// Click the voice row link in Identity to jump to the Voice sub-panel
+function switchAgentSub(target) {
+  const nav = document.getElementById('agentNav');
+  nav.querySelectorAll('.sub-nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.sub === target);
+  });
+  document.querySelectorAll('#tab-agent .sub-panel').forEach(p => {
+    p.classList.toggle('active', p.id === target);
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// Voice row selection
+document.querySelectorAll('.voice-row').forEach(row => {
+  row.addEventListener('click', () => {
+    row.parentElement.querySelectorAll('.voice-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+  });
+});
+
+// Inner per-goal tab switching
+document.querySelectorAll('.goal-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const bar = btn.parentElement;
+    bar.querySelectorAll('.goal-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const target = btn.dataset.gt;
+    const body = bar.parentElement.querySelector('.goal-tab-body');
+    body.querySelectorAll('.goal-tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(target).classList.add('active');
+  });
+});
+
+// Goal row selection — updates the "Editing: <name>" header
+document.querySelectorAll('.goal-row[data-goal]').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('.goal-row[data-goal]').forEach(r => r.classList.remove('selected-goal'));
+    row.classList.add('selected-goal');
+    const label = document.querySelector('.goal-detail-head-name');
+    if (label) label.textContent = row.dataset.goal;
+  });
+});
+</script>
+</body>
+</html>
