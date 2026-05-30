@@ -1,4 +1,24 @@
 {
+  "_id": "60b83296-ba40-430a-862d-bcc020d2472a_2026-05-17T09:24:19.843Z",
+  "id": "60b83296-ba40-430a-862d-bcc020d2472a_2026-05-17T09:24:19.843Z",
+  "recipe": "configure-your-own",
+  "org_id": "RtxkillCcAcdCkv8s7GGbjbXYkt1",
+  "is_manually_changed": true,
+  "agent_id": "60b83296-ba40-430a-862d-bcc020d2472a",
+  "QnA": [
+    {
+      "question": "Why do you need a photo of me with my driving license?",
+      "answer": "As we're not going to meet in person, we just need to be able to verify that the person in the ID is the person we're speaking to. It's a standard verification process."
+    },
+    {
+      "question": "When will I get my car?",
+      "answer": "Once we receive your driving license photos, we can finalize everything and you'll be ready to choose the right car with the dealership."
+    },
+    {
+      "question": "What happens next?",
+      "answer": "I'll keep things simple and guide you through the process. Once we have your license verification, we will be able to assist you to find your perfect car."
+    }
+  ],
   "default_metadata": {
     "dealer_name": "Bright Car Finance Dealer",
     "budget_questions_enabled": "yes",

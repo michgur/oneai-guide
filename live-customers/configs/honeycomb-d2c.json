@@ -1,0 +1,1000 @@
+{
+  "_id": "0ed0a40a-3364-493f-8987-8c91c9697053_2026-05-27T12:09:25.279Z",
+  "id": "0ed0a40a-3364-493f-8987-8c91c9697053_2026-05-27T12:09:25.279Z",
+  "recipe": "configure-your-own",
+  "org_id": "O4IQdcdbpWegEq2o1BvwDvtKAo82",
+  "is_manually_changed": true,
+  "agent_id": "0ed0a40a-3364-493f-8987-8c91c9697053",
+  "cooldown_on_agent_ignore": 0,
+  "cooldown_on_user_ignore": 0,
+  "custom_vocabulary": {
+    "Landlord": {}
+  },
+  "default_metadata": {
+    "%company_name%": "Honey Comb",
+    "%agent_name%": "Tyler",
+    "%transfer_number%": "+13122486573",
+    "%voicemail_message%": "Hi This is Tyler from Honey Comb, please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%scheduling_meeting_type%": "phone call",
+    "%responses_reason_for_call%": " To follow up on the request you filled and provide you with a quote.",
+    "%responses_are_you_ai%": "Yea, I am an AI Voice Agent. I help the team at HoneyComb to contact people who are interested in purchasing insurance for their property.",
+    "%responses_list_source%": "I see that you have requested an insurance quote through our website.",
+    "%responses_talk_to_a_human%": "",
+    "%call_intro%": "Hi, this is {%agent_name%} from Honey Comb on a recorded line",
+    "%speaker_verification_acknowledge%": "Hey {contact_name}. Thanks for reaching out about your property!",
+    "%IVR_TARGET%": "agent or voicemail",
+    "scheduling_calendar": "",
+    "_number_of_units": "3 unit",
+    "_building_type": "family rental",
+    "_effective_date": "March 1st 2025",
+    "_offer_amount": "1000 dollars per unit",
+    "_reply_email": "johana_hamershalg@gmail.com"
+  },
+  "experiments": [
+    {
+      "name": "Setting Expectations",
+      "description": "Explain to the user what will happen to reduce frustration",
+      "test_groups": [
+        {
+          "name": "A",
+          "percent": 33,
+          "goals_update": {
+            "good time to talk": {
+              "messages": {
+                "1": {
+                  "message": "Before we're able to finalize and approve a quote we need to verify a few pieces of information. Then I will connect you to an advisor, do you have a few minutes now?"
+                },
+                "2": {
+                  "message": "Is this a good time to review your quote and get you connect to an advistor?"
+                },
+                "3": {
+                  "message": "I just need a few details to approve your quote and connect you to an advisor, can we do that now?"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "B",
+          "percent": 33,
+          "goals_update": {
+            "good time to talk": {
+              "messages": {
+                "1": {
+                  "message": "We need to verify a few pieces of information before connecting you with a licensed advisor and approving your quote. Do you have a few minutes now?"
+                },
+                "2": {
+                  "message": "Is this a good time to review your quote and get you connect to an advistor?"
+                },
+                "3": {
+                  "message": "I just need a few details to approve your quote and connect you to an advisor, can we do that now?"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "name": "speak to agent",
+      "cost": 1000,
+      "goal_type": "say",
+      "conditions": "%call_result% != disqualified",
+      "triggers": [
+        "representative",
+        "human",
+        "human agent",
+        "speak to human",
+        "transfer to human",
+        "Speak to an agent",
+        "Can I talk to customer service?",
+        "live person\n",
+        "I wanna talk to somebody",
+        "Is is there somebody I can talk to",
+        "Do you have a live person?",
+        "can you give me a real person?"
+      ],
+      "appended": true,
+      "messages": [
+        {
+          "message": "We will schedule you a time to speak with an advisor.",
+          "conditions": "'callback or transfer now' = after underwriting review"
+        },
+        {
+          "message": "I'm sorry but I don't currently have anyone available as we are outside working hours.",
+          "conditions": "%trigger_count% > 1 and %in_transfer_working_hours% = no"
+        },
+        {
+          "message": "I'll try to transfer you now, if they won't be able to answer they'll give you a call back",
+          "conditions": "'callback or transfer now' = transfer now or (%trigger_count% > 1 and %in_transfer_working_hours% = yes)"
+        },
+        {
+          "message": "I understand you wish to speak to a human agent, and I'll be happy to see if I can connect you, I just need to quickly collect a few details before.",
+          "conditions": "is competitive offer $empty"
+        },
+        {
+          "message": "Just one last question I can see about how I can connect you to an agent.",
+          "conditions": "is competitive offer $empty and 'callback or transfer now' $empty"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "triggered",
+          "values": {
+            "request_escalation": "yes"
+          }
+        },
+        {
+          "timing": "triggered",
+          "conditions": "%in_transfer_working_hours% = yes and %trigger_count% > 1",
+          "trigger": "transfer to representative"
+        }
+      ],
+      "id": "1",
+      "transitions": [
+        {
+          "name": "transfer to agent",
+          "target": "transfer to representative",
+          "prompt": "If the user requests to speak to an agent use this tool to transfer them.",
+          "conditions": "%in_transfer_working_hours% = yes and %trigger_count% > 1"
+        }
+      ]
+    },
+    {
+      "name": "not interested before verified",
+      "cost": 1000,
+      "goal_type": "say",
+      "appended": true,
+      "conditions": "good time to talk $empty",
+      "triggers": [
+        "your insurance cost too much",
+        "I don't need the quote",
+        "I'm no longer interested.",
+        "Yep. I'm no longer interested.",
+        "I don't need this insurance anymore"
+      ],
+      "messages": [
+        {
+          "message": "I hear you."
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "triggered",
+          "call_result": "disqualified"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "good time to talk",
+      "is_qualifier": true,
+      "value_type": "approval",
+      "detection_model": "llm_function",
+      "conditions": "speaker verification = yes",
+      "validation_prompt": "",
+      "messages": [
+        {
+          "message": "Thank you for calling me back! Hi, this is {%agent_name%} from Honey Comb on a recorded line. I reached out to follow up on the request you filled. We wanted to get your quote finalized and approved and connect you with an advisor, and to do that we need to verify a few pieces of information, do you have a few minutes now?",
+          "conditions": "%call_type% = phone_inbound",
+          "repeat": false
+        },
+        {
+          "message": "Before we're able to finalize and approve a quote we need to collect a few pieces of information, do you have a few minutes now?",
+          "conditions": "%call_type% = phone_outbound",
+          "repeat": false
+        },
+        {
+          "message": "Is this a good time to review your quote?"
+        },
+        {
+          "message": "I just need a few details to approve your quote, can we do that now?"
+        },
+        {
+          "message": "do you have just a couple of minutes to get your quote approved?",
+          "objection_handler": true
+        }
+      ],
+      "choices": [
+        {
+          "name": "not interested in quote",
+          "id": "3.1"
+        },
+        {
+          "name": "not interested in talking to assistant",
+          "id": "3.2"
+        },
+        {
+          "name": "not a good time to talk",
+          "id": "3.3"
+        },
+        {
+          "name": "yes",
+          "id": "3.4"
+        }
+      ],
+      "options": {
+        "llm_model": "oneai_value_detection",
+        "llm_function_property_description": ""
+      },
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "good time to talk = 'not interested in quote' and %schedule-callback.triggered% = no",
+          "values": {
+            "disqualification_reason": "not_interested"
+          },
+          "call_result": "disqualified"
+        },
+        {
+          "timing": "collected",
+          "conditions": "good time to talk = 'not interested in talking to assistant'",
+          "values": {
+            "good time to talk": null
+          },
+          "call_result": "contact_verified"
+        },
+        {
+          "timing": "completed",
+          "conditions": "good time to talk = 'not interested in quote' and %schedule-callback.triggered% = no",
+          "trigger": "hang up"
+        },
+        {
+          "timing": "completed",
+          "conditions": "good time to talk = 'not a good time to talk'",
+          "trigger": "schedule-callback"
+        },
+        {
+          "timing": "collected",
+          "conditions": "good time to talk = yes",
+          "values": {
+            "disqualification_reason": null
+          },
+          "call_result": "contact_verified"
+        }
+      ],
+      "id": "3"
+    },
+    {
+      "name": "discovery",
+      "goals": [
+        {
+          "name": "looking for insurance",
+          "value_type": "approval",
+          "is_selection": true,
+          "messages": [
+            {
+              "message": "It looks like you're shopping for property and general liability coverage, is that right? "
+            },
+            {
+              "message": "so, are you looking for insurance for your property?"
+            },
+            {
+              "message": "Are you interested in insuring your property?"
+            },
+            {
+              "message": "Are you interested in property insurance?",
+              "objection_handler": true
+            }
+          ],
+          "objection_handling": [
+            "I would like to make sure you're interested in our insurance products before moving forward."
+          ],
+          "goals": [
+            {
+              "name": "no",
+              "acknowledge": "I see.",
+              "goals": [
+                {
+                  "name": "doesn't want to discuss",
+                  "goal_type": "say",
+                  "force_exact_response": true,
+                  "exclusive_message": true,
+                  "messages": "[SPEED=0.8]I understand. thank you for your time, goodbye!",
+                  "fulfillment": [
+                    {
+                      "timing": "performed",
+                      "values": {
+                        "disqualification_reason": "not_interested"
+                      },
+                      "voice_action": "hang_up",
+                      "call_result": "disqualified"
+                    }
+                  ],
+                  "id": "4.1.1.1"
+                }
+              ],
+              "id": "4.1.1"
+            },
+            {
+              "name": "yes",
+              "validation_prompt": [
+                "user is looking for insurance",
+                "user is looking for  Habitational for commercial apartment"
+              ],
+              "id": "4.1.2"
+            },
+            {
+              "name": "recently renewed",
+              "validation_prompt": "I just renewed my insurance",
+              "id": "4.1.3"
+            },
+            {
+              "name": "landlord",
+              "validation_prompt": [
+                "User is a landlord",
+                "user is looking for landlord insurance"
+              ],
+              "acknowledge": "Excellent, landlord insurance requires the same coverage.",
+              "id": "4.1.4"
+            },
+            {
+              "name": "not supported coverage",
+              "validation_prompt": [
+                "user is looking for Homeowners insurance",
+                "user is looking for Unit-Owners insurance",
+                "user is looking for Renter’s insurance",
+                "user is looking for DP-1",
+                "user is looking for DP-3",
+                "user is looking for HO3",
+                "user is looking for HO6"
+              ],
+              "acknowledge": "I see.",
+              "goals": [
+                {
+                  "name": "not supported coverage response",
+                  "goal_type": "say",
+                  "force_exact_response": true,
+                  "messages": "[SPEED=0.8]Unfortunately we don't provide this type of coverage. Thank you for your time, goodbye!",
+                  "fulfillment": [
+                    {
+                      "timing": "performed",
+                      "values": {
+                        "disqualification_reason": "unsupported_coverage"
+                      },
+                      "voice_action": "hang_up",
+                      "call_result": "disqualified"
+                    }
+                  ],
+                  "id": "4.1.5.1"
+                }
+              ],
+              "id": "4.1.5"
+            }
+          ],
+          "id": "4.1"
+        },
+        {
+          "name": "insured property",
+          "value_type": "approval",
+          "is_selection": true,
+          "messages": [
+            {
+              "message": "I have your type of property listed as a {unit_description} {building_type}, is that correct?"
+            },
+            {
+              "message": "so, are you looking to insure a {unit_description} {building_type}?"
+            }
+          ],
+          "objection_handling": [
+            "I would like to make sure I have the correct property type."
+          ],
+          "fulfillment": [
+            {
+              "timing": "triggered",
+              "conditions": "building_type != Single Family Rental",
+              "values": {
+                "unit_description": "{number_of_units} unit"
+              }
+            },
+            {
+              "timing": "collected",
+              "conditions": "insured property = yes",
+              "values": {
+                "insured property": "{number_of_units} {building_type}"
+              }
+            }
+          ],
+          "goals": [
+            {
+              "name": "no",
+              "acknowledge": "I see.",
+              "goals": [
+                {
+                  "name": "updated insured property details",
+                  "goal_type": "ask",
+                  "value_type": "custom",
+                  "detection_model": "llm_function",
+                  "exclusive_message": true,
+                  "messages": "What type of property are you looking to insure?",
+                  "validation_prompt": "return the type of property the user is looking to insure.",
+                  "fulfillment": [
+                    {
+                      "timing": "collected",
+                      "values": {
+                        "insured property": "{updated insured property details}"
+                      }
+                    }
+                  ],
+                  "id": "4.2.1.1"
+                }
+              ],
+              "id": "4.2.1"
+            }
+          ],
+          "id": "4.2"
+        },
+        {
+          "name": "has insurance coverage",
+          "is_selection": true,
+          "value_type": "approval",
+          "messages": [
+            {
+              "message": "Do you currently have coverage in place?"
+            },
+            {
+              "message": "Can you confirm you currently have coverage?"
+            },
+            {
+              "message": "Have you got a coverage in place?"
+            }
+          ],
+          "objection_handling": [
+            "we want to understand where you stand to provide you with a better service"
+          ],
+          "goals": [
+            {
+              "name": "yes",
+              "goals": [
+                {
+                  "name": "effective date is relevant",
+                  "goal_type": "ask",
+                  "value_type": "approval",
+                  "messages": [
+                    {
+                      "message": "I saw that you submitted {effective date:parse_date:%B %d, %Y} as your desired effective date, is that still the target?"
+                    },
+                    {
+                      "message": "So is {effective date:parse_date:%B %d, %Y} still the target date?"
+                    }
+                  ],
+                  "id": "4.3.1.1"
+                }
+              ],
+              "id": "4.3.1"
+            },
+            {
+              "name": "no",
+              "validation_prompt": "It's a new purchase.",
+              "goals": [
+                {
+                  "name": "insurance target date",
+                  "value_type": "custom",
+                  "detecion_model": "llm_function",
+                  "validation_prompt": "return a time, when the user needs to secure coverage or 'I dont know' ",
+                  "messages": [
+                    {
+                      "message": "By what date would you like to secure coverage?"
+                    }
+                  ],
+                  "id": "4.3.2.1"
+                }
+              ],
+              "id": "4.3.2"
+            }
+          ],
+          "id": "4.3"
+        },
+        {
+          "name": "timeline",
+          "detection_name": "timeline for insurance purchase",
+          "goal_type": "ask",
+          "value_type": "custom",
+          "detection_model": "llm_function",
+          "acknowledge": [
+            {
+              "message": "This is a bit too early, please us know if you have any questions in the meantime and please resubmit your request once you're within 90 days of needing coverage",
+              "conditions": "urgency_category=low"
+            }
+          ],
+          "validation_prompt": "when does the user need the insurance for - any timeline or due date. If no timeline specified, return 'not specified'.",
+          "messages": [
+            {
+              "message": "Any specific timeline you're aiming for the new insurance?"
+            },
+            {
+              "message": "Just to get a sense: what is your target date for the process?"
+            },
+            {
+              "message": "I do need at least an rough date, when do you need the new insurance?"
+            }
+          ],
+          "objection_handling": [
+            "This information is needed for us to send you the most suitable information"
+          ],
+          "options": {
+            "llm_function_property_name": "timeline",
+            "llm_function_property_order": "timeline",
+            "llm_function_property_description": "REQUIRED. Today is {%today_iso%}, The approximate date the user needs insurance for in YYYY-MM-DD format. If timeline is immediate or as-soon-as-possible use today's date. If the user did not specify a timeline return null."
+          },
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "conditions": "timeline $date_valid no",
+              "values": {
+                "timeline": null
+              },
+              "trigger": "timeline"
+            },
+            {
+              "timing": "collected",
+              "conditions": "timeline $date_valid and urgency_category $empty and timeline $date_diff_lte 7",
+              "values": {
+                "urgency_category": "high"
+              }
+            },
+            {
+              "timing": "collected",
+              "conditions": "timeline $date_valid and urgency_category $empty and timeline $date_diff_lte 30",
+              "values": {
+                "urgency_category": "medium"
+              }
+            },
+            {
+              "timing": "collected",
+              "conditions": "timeline $date_valid and urgency_category $empty and timeline $date_diff_gt 90",
+              "call_result": "disqualified",
+              "values": {
+                "disqualification_reason": "effective_90d_out",
+                "urgency_category": "low"
+              },
+              "trigger": "hang up"
+            }
+          ],
+          "id": "4.4"
+        },
+        {
+          "name": "is competitive offer",
+          "value_type": "approval",
+          "is_selection": true,
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "note": "condition checks that callcenter is currently NOT in working hours",
+              "conditions": "'is competitive offer' = yes and %in_transfer_working_hours% = no",
+              "values": {
+                "callback or transfer now": "after underwriting review"
+              }
+            }
+          ],
+          "messages": [
+            {
+              "message": "Our non-binding premium estimate is {offer_amount:words} dollars, is this competitive relative to your current policy?"
+            },
+            {
+              "message": "So would you consider this offer competitive?"
+            }
+          ],
+          "goals": [
+            {
+              "name": "yes",
+              "validation_prompt": [
+                "User wants to continue"
+              ],
+              "id": "4.5.1",
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "call_result": "qualified"
+                }
+              ]
+            },
+            {
+              "name": "partial",
+              "validation_prompt": [
+                "User needs additional coverage",
+                "user need to add something to the coverage"
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "call_result": "qualified"
+                }
+              ],
+              "id": "4.5.2"
+            },
+            {
+              "name": "no",
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "call_result": "disqualified",
+                  "values": {
+                    "disqualification_reason": "not_competitive"
+                  }
+                }
+              ],
+              "goals": [
+                {
+                  "name": "competitive quote",
+                  "goal_type": "ask",
+                  "value_type": "custom",
+                  "detection_model": "llm_function",
+                  "messages": [
+                    {
+                      "message": "Where would we need to come in at to be competitive?"
+                    },
+                    {
+                      "message": "so I simply want to understand what would make our premium competitive"
+                    },
+                    {
+                      "message": "I just need an estimate to try and find you the best offer, what would you consider competitive?"
+                    }
+                  ],
+                  "validation_prompt": "return the value the user wants in a quote",
+                  "id": "4.5.3.1",
+                  "refusal_handling": [
+                    "There may be room to adjust our quote."
+                  ]
+                },
+                {
+                  "name": "close file",
+                  "value_type": "approval",
+                  "messages": [
+                    {
+                      "message": "As you mentioned the quote is not competitive enough, should I close this file in our system?"
+                    },
+                    {
+                      "message": "So should I close the file for now?"
+                    },
+                    {
+                      "message": "Would you like me to close the file?"
+                    }
+                  ],
+                  "id": "4.5.3.2",
+                  "fulfillment": [
+                    {
+                      "timing": "collected",
+                      "conditions": "close file = no",
+                      "call_result": "qualified"
+                    },
+                    {
+                      "timing": "collected",
+                      "trigger": "hang up"
+                    }
+                  ],
+                  "choices": [
+                    {
+                      "name": "yes",
+                      "acknowledge": "I'm sorry we're not able to help you at this time. We will close this file in our system.",
+                      "id": "4.5.3.2.1"
+                    },
+                    {
+                      "name": "no",
+                      "acknowledge": "Ok, I'll keep it open and our team will get in touch with you soon.",
+                      "id": "4.5.3.2.2"
+                    }
+                  ]
+                }
+              ],
+              "id": "4.5.3"
+            }
+          ],
+          "id": "4.5"
+        },
+        {
+          "name": "knockout",
+          "goal_type": "say",
+          "conditions": "offer_amount < 4000 and urgency_category != high",
+          "messages": "Thanks you for your time and providing all the additional details! We will review them and circle back as soon as possible.",
+          "fulfillment": [
+            {
+              "timing": "performed",
+              "values": {
+                "knockout": "yes"
+              },
+              "trigger": "hang up"
+            }
+          ],
+          "id": "4.6"
+        },
+        {
+          "name": "callback or transfer now",
+          "value_type": "selection",
+          "conditions": "disqualification_reason $is_empty and knockout != yes and (is competitive offer = yes or is competitive offer = partial)",
+          "detection_model": "llm_function",
+          "goal_type": "ask",
+          "messages": [
+            {
+              "message": "Sounds like we might be a great fit! We have two options: Would you like for us to give you a call back once we've completed our underwriting process, or alternatively discuss your coverage goals with a licensed advisor now?"
+            }
+          ],
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "conditions": "'callback or transfer now' = after underwriting review",
+              "values": {
+                "%scheduling-via-voice-allowed%": "yes"
+              },
+              "trigger": "scheduling-via-voice"
+            }
+          ],
+          "choices": [
+            {
+              "name": "after underwriting review",
+              "trigger_scope": "callback or transfer now",
+              "triggers": [
+                "after underwriting proccess",
+                "after the review",
+                "after the proccess",
+                "lets schedule a time"
+              ],
+              "goals": [
+                {
+                  "name": "we will be in touch",
+                  "goal_type": "say",
+                  "conditions": "%meeting_scheduled% = yes",
+                  "note": "re-insert at {advisor_email:words} ",
+                  "messages": [
+                    {
+                      "message": "Thanks you for your time and providing all the additional details! We will review them and circle back as soon as possible. Have a good one."
+                    }
+                  ],
+                  "id": "4.7.1.1"
+                }
+              ],
+              "id": "4.7.1"
+            },
+            {
+              "name": "transfer now",
+              "trigger_scope": "callback or transfer now",
+              "triggers": [
+                "yeah, now it great",
+                "OK, you can transfer",
+                "can you transfer me now?"
+              ],
+              "id": "4.7.2"
+            }
+          ],
+          "id": "4.7"
+        }
+      ],
+      "id": "4"
+    },
+    {
+      "name": "transfer",
+      "conditions": "'callback or transfer now' = transfer now or %speak to agent.trigger_count% > 1",
+      "goals": [
+        {
+          "name": "transfer to representative",
+          "priority": -2,
+          "goal_type": "say",
+          "uninterruptible": true,
+          "messages": [
+            {
+              "message": "I'll try to transfer you now, if they won't be able to answer they'll give you a call back"
+            },
+            {
+              "message": "I have all of the information I need. let me check if one of our experts is available to speak with you right now. It should only take a sec."
+            }
+          ],
+          "fulfillment": [
+            {
+              "timing": "triggered_once",
+              "new_call": {
+                "agent": "honeycomb-callcenter",
+                "from_number": "{phone}",
+                "phone_number": "{%transfer_number%}",
+                "pre_merge_message": "OK, I’ve got an available consultant. They’ll walk you through your best options. I’m transferring you over now.",
+                "parent_fail_message": "Looks like they're on another call right now. We'll call you back soon. Good Bye",
+                "contact_name": "HoneyComb Agent",
+                "check_dnc_registry": false,
+                "metadata": {
+                  "client_contact_name": "{contact_name}",
+                  "client_contact_full_name": "{contact_full_name}",
+                  "client_us_state": "{us state}",
+                  "insured property": "{insured property}",
+                  "has insurance coverage": "{has insurance coverage}",
+                  "timeline for insurance purchase": "{timeline}"
+                },
+                "idle_messages": [
+                  {
+                    "text": "by the way, they're great, I know they're helping a lot of people to find the best coverage and I'm sure you'll be really happy!",
+                    "timeout": 8
+                  },
+                  {
+                    "text": "Sorry about the delay, I'm working to bring them on the line",
+                    "timeout": 12
+                  },
+                  {
+                    "text": "Sounds like they're still busy, let's give them one more minute",
+                    "timeout": 16
+                  },
+                  {
+                    "text": "It's usually much faster but I am still working on getting them on the line, shouldn't take much longer",
+                    "timeout": 30
+                  },
+                  {
+                    "text": "Still working on it, thanks for being patient",
+                    "timeout": 30
+                  }
+                ]
+              }
+            },
+            {
+              "timing": "performed",
+              "conditions": "'callback or transfer now' = transfer now",
+              "type": "voice",
+              "options": {
+                "call_result": "converted"
+              }
+            }
+          ],
+          "id": "5.1"
+        },
+        {
+          "name": "hold while connecting",
+          "goal_type": "behave",
+          "priority": -2,
+          "repeat": true,
+          "messages": "The user is waiting for a HoneyComb consultant to connect, it may take a moment, usually, about one or two minutes.\nBe nice and reassure them that you're dialing the HoneyComb consultant on the other line, while they are waiting and you will connect them in a minute or two.\nYou may answer their questions to the best of your knowledge while they wait. Try to be brief.\n### If the user objects to being connected with the consultant use the following objection handling strategies\n\n#### Also check for relevant responses from the documentation, try to use a new response each time.",
+          "id": "5.2"
+        }
+      ],
+      "id": "5"
+    }
+  ],
+  "goals_update": {
+    "meeting slot": {
+      "options": {
+        "provider": "hubspot",
+        "meeting_link": "{scheduling_calendar}"
+      }
+    },
+    "detect contact extension": {
+      "fulfillment": {
+        "+": {
+          "timing": "triggered",
+          "values": {
+            "%voicemail_message%": "Hi this is Tyler from Honeycomb, calling back on your request for commercial insurance coverage at {address}. I was hoping to speak with {contact_full_name}. Can you please call me back at {%agent_phone_number%:local_phone:digits}?",
+            "%human_message%": "Hi this is Tyler from Honeycomb, calling back on your request for commercial insurance coverage at {address}. I was hoping to speak with {contact_full_name}. Can you please call me back at {%agent_phone_number%:local_phone:digits}?"
+          }
+        }
+      }
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "Hired And Non-Owned Auto, Ordinance Or Law",
+        "I also need adittional coverage",
+        "I need Employee Benefits Liability coverage",
+        "I need Equipment Breakdown coverage",
+        "I need Water Back Up/Sump Overflow",
+        "I need coverage for pumps issues",
+        "I need coverage for water damage"
+      ],
+      "answers": [
+        "We'll be able to add additional coverage once I connect you to an advisor"
+      ]
+    },
+    {
+      "questions": [
+        "does it cost any money?",
+        "how much does it cost?",
+        "what is the price of the consultancy?"
+      ],
+      "answers": [
+        "The call is free of charge!"
+      ]
+    },
+    {
+      "questions": [
+        "details about deductibles",
+        "what are the coverage limits?",
+        "what will be the deductibles?"
+      ],
+      "answers": [
+        "Once I connect you to an advisor they can give you these details"
+      ]
+    },
+    {
+      "questions": [
+        "What is the coverage?",
+        "what's the coverage?"
+      ],
+      "answers": [
+        "a commercial package policy with both property and general liability components."
+      ]
+    },
+    {
+      "questions": [
+        "I already have coverage",
+        "I already have insurance"
+      ],
+      "answers": [
+        "Makes sense — most of our clients did too. But they found they were overpaying or missing key protections. No pressure — we can do a quick comparison and you’ll know for sure."
+      ]
+    },
+    {
+      "questions": [
+        "how much",
+        "how much is the estimate?"
+      ],
+      "answers": [
+        "Our non-binding premium estimate is {offer_amount:words} dollars"
+      ]
+    },
+    {
+      "questions": [
+        "What information do you need?"
+      ],
+      "answers": [
+        "I just need a few details about your propery."
+      ]
+    },
+    {
+      "questions": [
+        "I need to check with someone else"
+      ],
+      "answers": [
+        "Got it — happens all the time. We can still walk you through the options now so you're ready for that convo. It'll make the next step way easier on your end."
+      ]
+    },
+    {
+      "questions": [
+        "I don't need this"
+      ],
+      "answers": [
+        "There are no costs or any downside in listening to our offer, please let me have a couple of minutes of your time, it can really pay off!"
+      ]
+    },
+    {
+      "questions": [
+        "Stop Calling me!",
+        "Take me off your list"
+      ],
+      "answers": [
+        "Sure, We will take you off our lists. Have a great day! Bye."
+      ]
+    },
+    {
+      "questions": [
+        "I'm not ready yet",
+        "I’m just shopping around"
+      ],
+      "answers": [
+        "Totally get it — a lot of people start here. That’s why we make it super fast and easy to compare. Our expert can show you exactly what you'd get, and you can decide when you're ready."
+      ]
+    },
+    {
+      "questions": [
+        "Are you recording this call?",
+        "Is this call being recorded?"
+      ],
+      "answers": [
+        "yea, I think all of our calls are recorded. I hope that's not a problem."
+      ]
+    },
+    {
+      "questions": [
+        "Can you just email me the info?"
+      ],
+      "answers": [
+        "I totally can — but insurance can get nuanced, especially for buildings. A quick call with our expert will save you time and give you a clear answer, no back-and-forth."
+      ]
+    },
+    {
+      "questions": [
+        "how long is the waiting?",
+        "how long will it take?",
+        "will I wait for long?"
+      ],
+      "answers": [
+        "It shouldn't take long, they usually pick up quite fast."
+      ]
+    }
+  ]
+}

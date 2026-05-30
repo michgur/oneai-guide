@@ -1,4 +1,10 @@
 {
+  "_id": "5696fdd7-a0f7-4e0f-8598-0bcd17d365a8_2026-05-13T17:02:27.974Z",
+  "id": "5696fdd7-a0f7-4e0f-8598-0bcd17d365a8_2026-05-13T17:02:27.974Z",
+  "recipe": "configure-your-own",
+  "org_id": "RSzBATPd5OfXo5KpaPWB8ORkuik2",
+  "is_manually_changed": true,
+  "agent_id": "5696fdd7-a0f7-4e0f-8598-0bcd17d365a8",
   "cooldown_on_agent_ignore": 0,
   "cooldown_on_user_ignore": 0,
   "default_metadata": {

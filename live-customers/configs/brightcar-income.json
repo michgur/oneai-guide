@@ -1,0 +1,643 @@
+{
+  "_id": "73339377-ebe8-419b-8d70-0a10f8d3bf2e_2026-03-25T13:06:43.781Z",
+  "id": "73339377-ebe8-419b-8d70-0a10f8d3bf2e_2026-03-25T13:06:43.781Z",
+  "recipe": "configure-your-own",
+  "org_id": "RtxkillCcAcdCkv8s7GGbjbXYkt1",
+  "is_manually_changed": true,
+  "agent_id": "73339377-ebe8-419b-8d70-0a10f8d3bf2e",
+  "QnA": [
+    {
+      "question": "Why do you need a photo of me with my driving license?",
+      "answer": "As we're not going to meet in person, we just need to be able to verify that the person in the ID is the person we're speaking to. It's a standard verification process."
+    },
+    {
+      "question": "When will I get my car?",
+      "answer": "Once we receive your driving license photos, we can finalize everything and you'll be ready to choose the right car with the dealership."
+    },
+    {
+      "question": "What happens next?",
+      "answer": "I'll keep things simple and guide you through the process. Once we have your license verification, we will be able to assist you to find your perfect car."
+    }
+  ],
+  "default_metadata": {
+    "dealer_name": "Bright Car Finance Dealer",
+    "budget_questions_enabled": "yes",
+    "dealer_phone": "+441513177555",
+    "_dealer_phone": "+19013504160",
+    "%company_name%": "Bright Car Finance",
+    "%agent_name%": "Sarah",
+    "_contact_name": "Jon",
+    "%inbound_welcome_message%": "hi, welcome to {%company_name%}, you’re speaking with {%agent_name%}, can I get your name please?",
+    "%responses_reason_for_call%": "I wanted to give you a quick courtesy call regarding the finance application you made from {dealer_name}.",
+    "%responses_list_source%": "We received your application for vehicle finance from {dealer_name} and issued an approval for you.",
+    "%responses_are_you_ai%": "I am an AI assistant helping the {%company_name%} team to follow up on applications.",
+    "%call_intro%": "Hi it's {%agent_name%} calling from {%company_name%}",
+    "%speaker_verification_acknowledge%": "Perfect!",
+    "%voicemail_message%": "Hi {contact_name}, this is {%agent_name%} from {%company_name%} calling about your finance application you made from {dealer_name}. Please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%human_message%": "Hi, this is {%agent_name%} from {%company_name%}. Please call me back at {%agent_phone_number%:local_phone:digits} regarding your finance application you made from {dealer_name}.",
+    "finance_email": "hello@BrightCarFinance.co.uk",
+    "%responses_is_this_a_scam%": "No, this is not a scam. We've received your application from {dealer_name} and issued an approval. This call is simply to follow up on that approval. ",
+    "%brief%": "he’s looking for {vehicle size category} for {monthly payment budget} a month from {dealer_name}. {has deposit=yes? \"he can put down a deposit of\"} {has deposit=yes? deposit amount:words}."
+  },
+  "experiments": [
+    {
+      "name": "Script Options",
+      "description": "",
+      "test_groups": [
+        {
+          "name": "Simple flow transfer",
+          "percent": 50,
+          "default_metadata": {
+            "%call_intro%": "Hi it's {%agent_name%} from Bright Car Finance calling about your application from {dealer_name}",
+            "%brief%": ""
+          },
+          "goals_update": {
+            "ready for transfer": {
+              "messages": {
+                "-": "Your application has been approved in principle, we just need to confirm your income to move forward. Can I transfer you now to a member of the team at Bright Car Finance who can assist you with the next steps?"
+              }
+            },
+            "discovery": {
+              "enabled": false
+            }
+          }
+        },
+        {
+          "name": "Simple Flow next step",
+          "percent": 50,
+          "default_metadata": {
+            "%call_intro%": "Hi it's {%agent_name%} from Bright Car Finance calling about your application from {dealer_name}",
+            "%brief%": ""
+          },
+          "goals_update": {
+            "ready for transfer": {
+              "messages": {
+                "-": "Your application has been approved in principle, The next step is simply confirming your income so we can complete the process. Can I transfer you now to a member of the team at Bright Car Finance who can assist you with the next steps?"
+              }
+            },
+            "discovery": {
+              "enabled": false
+            }
+          }
+        },
+        {
+          "name": "Full Flow",
+          "percent": 0,
+          "config": {}
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "name": "Voices Match - Oct 1st",
+      "description": "New Voices",
+      "test_groups": [
+        {
+          "name": "Abi",
+          "percent": 50,
+          "config": {
+            "voice_config": {
+              "voice_id": "7z86FmcIa7GsCCATmiZy"
+            }
+          }
+        },
+        {
+          "name": "Olivia",
+          "percent": 50,
+          "config": {
+            "voice_config": {
+              "voice_id": "dPXlAsegNP5PQUtdGOFa"
+            }
+          }
+        }
+      ],
+      "enabled": true
+    }
+  ],
+  "goals": [
+    {
+      "goal_type": "ask",
+      "value_type": "approval",
+      "is_selection": true,
+      "conditions": "%call_type% = phone_inbound and %in_transfer_working_hours% = no",
+      "name": "outside_working_hours_intro",
+      "messages": "Regarding your finance application, it is approved in principle, we just need to confirm your income to move forward. I'd be happy to connect you with one of our experts, but unfortunately they're unavailable right now. Can I call you back during business hours?",
+      "validation_prompt": "check if the agent can schedule a callback.",
+      "choices": [
+        {
+          "name": "yes",
+          "id": "1.1",
+          "fulfillment": [
+            {
+              "timing": "completed",
+              "trigger": "schedule-callback"
+            }
+          ]
+        },
+        {
+          "name": "no",
+          "goals": [
+            {
+              "name": "not interested in callback",
+              "goal_type": "say",
+              "messages": "Thank you for yout time, goodbye!",
+              "fulfillment": [
+                {
+                  "timing": "performed",
+                  "voice_action": "hang_up",
+                  "call_result": "disqualified"
+                }
+              ],
+              "id": "1.2.1"
+            }
+          ],
+          "id": "1.2"
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "Already bought the car",
+      "cost": 1000,
+      "goal_type": "say",
+      "triggers": [
+        {
+          "message": [
+            "I already bought the car",
+            "I'm saying that I already bought the car"
+          ],
+          "validation_statement": "User already purchased a car"
+        },
+        {
+          "message": [
+            "I don't need the car anymore",
+            "I am not interested"
+          ],
+          "validation_statement": "User is no longer interested"
+        }
+      ],
+      "messages": [
+        "I see, thank you"
+      ],
+      "fulfillment": [
+        {
+          "timing": "performed",
+          "trigger": "hang up",
+          "call_result": "disqualified"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "discovery",
+      "goals": [
+        {
+          "name": "good time to chat",
+          "is_qualifier": true,
+          "value_type": "approval",
+          "conditions": "speaker verification = yes",
+          "is_selection": true,
+          "messages": [
+            {
+              "message": "Thank you for calling me back! My name is {%agent_name%}, I'm an with {%company_name%} following up about finance application you made with {dealer_name}.",
+              "conditions": "%call_type% = phone_inbound"
+            },
+            "I wanted to give you a quick courtesy call regarding the finance application you made with {dealer_name}, is now a good time to chat?",
+            "Is this a good time to discuss your car finance application?",
+            "Do you have a few minutes to talk about your finance application?"
+          ],
+          "choices": [
+            {
+              "name": "yes",
+              "acknowledge": "So, The good news is your finance has already been approved and we've verified your income, so we're nearly there.",
+              "id": "3.1.1"
+            },
+            {
+              "name": "not interested",
+              "validation_prompt": "User is not looking for car financing",
+              "id": "3.1.2"
+            }
+          ],
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "conditions": "good time to chat = no",
+              "trigger": "schedule-callback"
+            },
+            {
+              "timing": "collected",
+              "conditions": "good time to chat = not interested",
+              "trigger": "hang up"
+            }
+          ],
+          "id": "3.1"
+        },
+        {
+          "name": "Qualifying Questions",
+          "conditions": "qualifying_questions_enabled != no",
+          "goals": [
+            {
+              "name": "vehicle size category",
+              "value_type": "custom",
+              "validation_prompt": "What type of vehicle is the user thinking of - extract the general category or style they mention",
+              "options": {
+                "llm_model": "oneai_value_detection"
+              },
+              "messages": [
+                "Just so I can point you in the right direction, what type of vehicle are you thinking of? Something smaller and economical, or maybe something a bit bigger and more practical?",
+                "What kind of vehicle do you have in mind?",
+                "Are you looking for something specific in terms of vehicle type?"
+              ],
+              "refusal_handling": [
+                "No worries, just trying to understand what might work best for you."
+              ],
+              "id": "3.2.1"
+            },
+            {
+              "name": "vehicle usage",
+              "value_type": "custom",
+              "validation_prompt": "How does the user plan to use the vehicle - extract their main usage pattern",
+              "messages": [
+                "Are you mainly looking for something to get around town, or more for longer trips and family use?",
+                "What will you mainly be using the car for?",
+                "Is this more for daily commuting or family trips?"
+              ],
+              "refusal_handling": [
+                "Just helps me understand your needs better."
+              ],
+              "id": "3.2.2"
+            }
+          ],
+          "id": "3.2"
+        },
+        {
+          "name": "budget questions",
+          "conditions": "budget_questions_enabled = yes",
+          "goals": [
+            {
+              "name": "monthly payment budget",
+              "value_type": "custom",
+              "validation_prompt": "How much is the user willing to pay monthly for the vehicle - extract the amount or range",
+              "is_selection": true,
+              "messages": [
+                "How much are you happy to pay each month for the new vehicle?",
+                "What monthly payment would work for your budget?",
+                "What are you comfortable paying monthly?",
+                {
+                  "message": "Are we talking 200 pounds to 300 pounds a month or 400 pounds to 500 pounds a month?",
+                  "objection_handler": true
+                },
+                {
+                  "message": "Just to get a rough idea - lower range like 200 pounds to 300 pounds or higher like 400 pounds to 500 pounds?",
+                  "objection_handler": true
+                }
+              ],
+              "objection_conditions": "monthly payment budget = i dont know",
+              "refusal_handling": [
+                "No problem, are we talking 200 pounds to 300 pounds a month or 400 pounds to 500 pounds a month?",
+                "Just helps me understand what might work for you."
+              ],
+              "choices": [
+                {
+                  "name": "i dont know",
+                  "id": "3.3.1.1"
+                }
+              ],
+              "id": "3.3.1"
+            },
+            {
+              "name": "has deposit",
+              "value_type": "approval",
+              "is_selection": true,
+              "messages": [
+                "Have you got any deposit to go into the deal?",
+                "Do you have a deposit saved up?",
+                "Any deposit?"
+              ],
+              "id": "3.3.2"
+            },
+            {
+              "name": "deposit amount",
+              "conditions": "'has deposit' = yes",
+              "value_type": "number",
+              "validation_prompt": "How much deposit can the user put in - extract the amount",
+              "messages": [
+                "and how much deposit can you put in?",
+                "What deposit amount do you have available?",
+                "How much can you put down as a deposit?"
+              ],
+              "refusal_handling": [
+                "Just helps us understand what options might work best for you."
+              ],
+              "id": "3.3.3"
+            }
+          ],
+          "id": "3.3"
+        },
+        {
+          "name": "license sending",
+          "value_type": "approval",
+          "acknowledge": "Great,",
+          "messages": [
+            {
+              "message": "The only thing we need to get things moving is a copy of your driving license. Have you sent it already?"
+            },
+            {
+              "message": "Can you verify that you will be sending you license our way?"
+            },
+            {
+              "message": "Will you send you license?"
+            },
+            {
+              "message": "Please send your license?"
+            },
+            {
+              "message": "As mentioned we only need a photo of your driving license and photo of you holding your driving license beside your head so we can verify the ID. You can email these directly to us using {finance_email:words}, let me know if you want me to spell the email for you. can you send it?",
+              "objection_handler": true
+            },
+            {
+              "message": "As we’re not going to meet we just need to be able to verify the person in the ID is the person we’re speaking to. Once we’ve got that license, we can finalise everything and you’ll be ready to choose the right car with the dealership. can you send your license please?",
+              "objection_handler": true
+            }
+          ],
+          "id": "3.4"
+        }
+      ],
+      "id": "3"
+    },
+    {
+      "name": "ready for transfer",
+      "value_type": "approval",
+      "messages": [
+        "Can we transfer you now to a member of the team at Bright Car Finance who can assist you further?",
+        "Now that we have everything sorted, shall I connect you with a member of the team?",
+        "Can I transfer you to a member of the team?",
+        {
+          "message": "Just to make sure I understood, can I transfer you?",
+          "objection_handler": true
+        }
+      ],
+      "refusal_handling": [
+        "No problem at all. You can contact us anytime when you're ready."
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "ready for transfer = yes",
+          "call_result": "converted",
+          "trigger": "transfer to dealer"
+        }
+      ],
+      "choices": [
+        {
+          "name": "not interested",
+          "validation_prompt": [
+            "User is not looking for car financing",
+            "User already has car financing"
+          ],
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "trigger": "hang up"
+            }
+          ],
+          "id": "4.1"
+        },
+        {
+          "name": "no",
+          "validation_prompt": "user wants a callback",
+          "goals": [
+            {
+              "name": "wants a callback",
+              "messages": "how about I'll call you at a later time?",
+              "value_type": "approval",
+              "choices": [
+                {
+                  "name": "transfer now",
+                  "validation_prompt": "User wants a transfer now",
+                  "id": "4.2.1.1"
+                }
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "conditions": "wants a callback = yes",
+                  "call_result": "qualified",
+                  "trigger": "schedule-callback"
+                },
+                {
+                  "timing": "collected",
+                  "conditions": "wants a callback = transfer now",
+                  "call_result": "converted",
+                  "trigger": "transfer to dealer"
+                },
+                {
+                  "timing": "collected",
+                  "conditions": "wants a callback = no",
+                  "trigger": "hang up"
+                }
+              ],
+              "id": "4.2.1"
+            }
+          ],
+          "id": "4.2"
+        },
+        {
+          "name": "yes",
+          "validation_prompt": "User wants to be transferred",
+          "id": "4.3"
+        }
+      ],
+      "id": "4"
+    },
+    {
+      "name": "transfer to dealer",
+      "priority": -2,
+      "goal_type": "say",
+      "uninterruptible": true,
+      "messages": "Let me connect you with a Bright Car Finance member. They'll help you find the perfect car and get everything sorted. Please hold while I get them on the line.",
+      "conditions": "ready for transfer = yes or ready to transfer = transfer now",
+      "fulfillment": [
+        {
+          "timing": "triggered_once",
+          "new_call": {
+            "agent": "brightcar-callcenter",
+            "phone_number": "{dealer_phone}",
+            "from_number": "{phone}",
+            "pre_merge_message": "You are now connected. They'll help you find the perfect car!",
+            "parent_fail_message": "I'm sorry, but our team is currently busy. We'll have someone call you back shortly. Thank you!",
+            "contact_name": "{dealer_name}",
+            "check_dnc_registry": false,
+            "metadata": {
+              "client_phone_number": "{phone}",
+              "client_contact_name": "{contact_name}",
+              "client_contact_full_name": "{contact_full_name}",
+              "client_phone": "{phone}",
+              "finance_approved": "yes",
+              "monthly_payment_budget": "{monthly payment budget}",
+              "vehicle_preferences": "{vehicle size category}, {vehicle usage}",
+              "deposit_info": "{has deposit}",
+              "deposit_amount": "{deposit amount}",
+              "settlement_figure_known": "{settlement figure known}",
+              "%brief%": "{%brief%}"
+            },
+            "idle_messages": [
+              {
+                "text": "I'm just connecting you now - our dealers are fantastic and will help you find exactly what you're looking for!",
+                "timeout": 8
+              },
+              {
+                "text": "Almost there - they'll be able to show you all the available options that fit your budget and preferences.",
+                "timeout": 8
+              },
+              {
+                "text": "Thank you for your patience, this will only take another minute.",
+                "timeout": 8
+              }
+            ]
+          }
+        },
+        {
+          "timing": "performed",
+          "call_result": "converted",
+          "trigger": "hold while connecting"
+        }
+      ],
+      "id": "5"
+    },
+    {
+      "name": "closing next steps",
+      "goal_type": "say_generative",
+      "messages": "The user is waiting for a an agent to connect, it may take a moment, usually, about one or two minutes.\nBe nice and reassure them that you're dialing the them on other line, while they are waiting and you will connect them in a minute or two.\nYou may answer their questions to the best of your knowledge while they wait. Try to be brief.\n### If the user objects to being connected with the consultant use the following objection handling strategies\n\n#### Also check for relevant responses from the documentation, try to use a new response each time. if the user says 'thank you' or 'ok' just respond with 'no problem' or 'sure thing'",
+      "id": "6"
+    },
+    {
+      "name": "final questions handler",
+      "goal_type": "say_generative",
+      "priority": -2,
+      "repeat": true,
+      "messages": "The user has been provided with all the key information about their approved car finance. Answer any remaining questions they might have about the process, next steps, or requirements. Keep responses helpful and reassuring. If they ask about something you cannot answer, let them know they can email {finance_email:words} or that the dealership will help them with specific car-related questions.",
+      "id": "7"
+    }
+  ],
+  "goals_update": {
+    "inbound contact name": {
+      "acknowledge": "Thanks {contact_name}!"
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "Can I go to any dealer?",
+        "i've seen a car on Auto Trader, can I use this finance for that?"
+      ],
+      "answers": [
+        "At this stage we can only place you with the dealer you applied with, but we can ask the dealer whether we can do this."
+      ]
+    },
+    {
+      "questions": [
+        "why do you need my license",
+        "why do you need that?",
+        "why do you need the license"
+      ],
+      "answers": [
+        "As we’re not going to meet, we just need to be able to verify the person in the ID is the person we’re speaking to. "
+      ]
+    },
+    {
+      "questions": [
+        "what's your website?"
+      ],
+      "answers": [
+        "you can visit our website, brightcarfinance dot co dot uk"
+      ]
+    },
+    {
+      "questions": [
+        "Who approved my application?",
+        "which dealer approved the application?",
+        "who is it approved with?"
+      ],
+      "answers": [
+        "The application is approved by {dealer_name}."
+      ]
+    },
+    {
+      "questions": [
+        "I need to know the APR first",
+        "What's the APR?"
+      ],
+      "answers": [
+        "The APR will depend on the amount borrowed and length of time the agreement is taken over. Let's finish this process and I can then transfer you to the team who can go through a quote with you"
+      ]
+    },
+    {
+      "questions": [
+        "How much does it cost",
+        "how much it is?"
+      ],
+      "answers": [
+        "This really depends on the options, I don't have pricing details, the dealer will give you more information after I connect you."
+      ]
+    },
+    {
+      "questions": [
+        "What's the interest rate?"
+      ],
+      "answers": [
+        "I don't have that information but I can transfer you to someone who does"
+      ]
+    },
+    {
+      "questions": [
+        "How should I take the license photo?",
+        "any instructions on the license picture?",
+        "why do you need that?"
+      ],
+      "answers": [
+        "We just need a photo of you, holding your driving license beside your head, both in frame and neatly visible so we can verify the ID."
+      ]
+    },
+    {
+      "questions": [
+        "Do you charge any fees?"
+      ],
+      "answers": [
+        "No, we do not charge you any fees."
+      ]
+    },
+    {
+      "questions": [
+        "What are your opening hours?"
+      ],
+      "answers": [
+        "monday to friday from 9am to 6pm, saturday from 9am to 5pm and sunday 10am to 4pm"
+      ]
+    },
+    {
+      "questions": [
+        "What's the email address?"
+      ],
+      "answers": [
+        "The email address is:\nhello at bright car finance dot co dot uk "
+      ]
+    },
+    {
+      "questions": [
+        "email"
+      ],
+      "answers": [
+        "hello@brightcarfinance.co.uk "
+      ]
+    },
+    {
+      "questions": [
+        "What's your number?"
+      ],
+      "answers": [
+        "Zero one five one three one seven seven five five five"
+      ]
+    }
+  ]
+}

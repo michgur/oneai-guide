@@ -1,0 +1,408 @@
+{
+  "_id": "127ffdb3-4c7b-45e8-869c-d3ef969336ef_2026-02-25T08:52:16.542Z",
+  "id": "127ffdb3-4c7b-45e8-869c-d3ef969336ef_2026-02-25T08:52:16.542Z",
+  "recipe": "configure-your-own",
+  "org_id": "Em0U1t2PKwSopwRCtqE3omP8wT63",
+  "is_manually_changed": true,
+  "agent_id": "127ffdb3-4c7b-45e8-869c-d3ef969336ef",
+  "cooldown_on_agent_ignore": 0,
+  "cooldown_on_user_ignore": 0,
+  "default_metadata": {
+    "human_agent_mobile phone": "+441134650079",
+    "%agent_name%": "Emma",
+    "%company_name%": "Better Move",
+    "%call_intro%": "Hi, this is {%agent_name%}, your AI agent from {%company_name%}",
+    "%speaker_verification_acknowledge%": "Great.",
+    "%inbound_welcome_message%": "Welcome to Better Move, This is {%agent_name%}.",
+    "%voicemail_message%": "Hi, this is {%agent_name%} from Better Move. Call me back please.",
+    "%human_message%": "My name is {%agent_name%} from Better Move, please call me back at {%agent_phone_number%:local_phone:digits}",
+    "%responses_agent_name%": "I'm Emma from Quick House Buyers",
+    "%responses_reason_for_call%": "we're contacting people who were interested in selling their home fast.",
+    "%responses_company_name%": "Quick House Buyers, we're contacting people who were interested in selling their home fast.",
+    "%responses_are_you_ai%": "honestly yes, I am an AI Agent. I hope that's ok. I am helping Quick House Buyers to contact people.",
+    "%responses_list_source%": "I have your name on a list as someone who was interested in selling their home."
+  },
+  "experiments": [
+    {
+      "name": "Voices June 26th",
+      "enabled": false,
+      "description": "checking between some voices",
+      "test_groups": [
+        {
+          "name": "control: Lucy (female)",
+          "percent": 50
+        },
+        {
+          "name": "Raquel (female)",
+          "percent": 50,
+          "config": {
+            "voice_config": {
+              "voice_id": "C01Jm1JS2Fi2tUdF5nZX"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Voices Oct 5th",
+      "enabled": true,
+      "description": "checking between some voices",
+      "test_groups": [
+        {
+          "name": "control: Lucy",
+          "percent": 50
+        },
+        {
+          "name": "Abi",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "7z86FmcIa7GsCCATmiZy"
+            }
+          }
+        },
+        {
+          "name": "Olivia (female)",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "dPXlAsegNP5PQUtdGOFa"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Voices June 19th",
+      "enabled": false,
+      "description": "checking between some voices",
+      "test_groups": [
+        {
+          "name": "control:Eryn (female)",
+          "percent": 50
+        },
+        {
+          "name": "Raquel (female)",
+          "percent": 0,
+          "config": {
+            "voice_config": {
+              "voice_id": "C01Jm1JS2Fi2tUdF5nZX"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Voices options May 28th",
+      "enabled": false,
+      "test_groups": [
+        {
+          "name": "control:Lucy (female)",
+          "percent": 50
+        },
+        {
+          "name": "Simon v1",
+          "percent": 50,
+          "config": {
+            "voice_config": {
+              "voice_id": "EZbdG2VhYlAw4QBNJnYe",
+              "voice_speed": 0.87
+            }
+          },
+          "default_metadata": {
+            "%agent_name%": "Jamie"
+          }
+        }
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "name": "inbound call",
+      "conditions": "%call_type% = phone_inbound",
+      "goals": [
+        {
+          "name": "team not available",
+          "goal_type": "say",
+          "force_exact_response": true,
+          "exclusive_message": true,
+          "messages": "[SPEED=0.8]Hi {contact_name}, this is Emma from BetterMove. We tried to call you earlier to discuss your offer. Nobody is available to speak right now. But we will try calling again soon. Good Bye!",
+          "fulfillment": [
+            {
+              "timing": "performed",
+              "type": "voice",
+              "options": {
+                "action": "hang_up"
+              }
+            }
+          ],
+          "id": "1.1"
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "interested in transfer",
+      "cost": null,
+      "value_type": "approval",
+      "repeat": true,
+      "goal_type": "ask",
+      "acknowledge": "sure,",
+      "handle_response_type": "information-not-found",
+      "messages": [
+        "I will transfer you to someone who can help with that, ok?",
+        "I'm sure one of our consultants will be able to provide you more information. sounds good?"
+      ],
+      "triggers": [
+        "it depends on the offer",
+        "what is the offer?"
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "trigger": "transfer to representative"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "agrees to transfer",
+      "value_type": "approval",
+      "is_selection": true,
+      "acknowledge": "Okay.",
+      "force_exact_response": false,
+      "conditions": [
+        {
+          "field": "speaker verification"
+        }
+      ],
+      "objection_handling": [
+        "It shouldn't take long, they usually answer quickly"
+      ],
+      "messages": [
+        {
+          "message": "We have just received your inquiry about your property. I do have an instant cash offer if you'd be interested. Can I transfer you to a consultant?",
+          "prompt": "I do have an instant cash offer if you'd be interested.",
+          "conditions": "%call_type% != phone_inbound and %performed_count% = 0 and campaign_source $is_empty"
+        },
+        {
+          "message": "We have just received your inquiry  from {campaign_source}. I do have an instant cash offer if you'd be interested. Can I transfer you to a consultant?",
+          "prompt": "I do have an instant cash offer if you'd be interested.",
+          "conditions": "%call_type% != phone_inbound and %performed_count% = 0"
+        },
+        {
+          "message": "should I go ahead and connect you to one of our consultants?"
+        },
+        {
+          "message": "Would you like to hear our offer?"
+        },
+        {
+          "message": "Are you open to hear our offer?"
+        }
+      ],
+      "goals": [
+        {
+          "name": "yes",
+          "acknowledge": "sure,",
+          "id": "3.1"
+        },
+        {
+          "name": "no",
+          "goal_type": "say",
+          "validation_prompt": "user already sold the house",
+          "triggers": [
+            "I already sold the house",
+            "we sold the apartment",
+            "We sold it. Thank you.",
+            "someone already purchased the flat",
+            "it's irrelevant",
+            "it's not relevant anymore"
+          ],
+          "force_exact_response": false,
+          "goals": [
+            {
+              "name": "client not interested",
+              "goal_type": "say",
+              "force_exact_response": true,
+              "exclusive_message": true,
+              "conditions": [
+                {
+                  "field": "agrees to transfer",
+                  "value": "no"
+                }
+              ],
+              "messages": "[SPEED=0.8]Ok, Thank you for your time and please feel free to call us if you change your mind!",
+              "fulfillment": [
+                {
+                  "timing": "performed",
+                  "type": "voice",
+                  "options": {
+                    "action": "hang_up",
+                    "call_result": "disqualified"
+                  }
+                }
+              ],
+              "id": "3.2.1"
+            }
+          ],
+          "id": "3.2"
+        }
+      ],
+      "fulfillment": [],
+      "id": "3"
+    },
+    {
+      "name": "transfer to representative",
+      "priority": -2,
+      "goal_type": "say",
+      "uninterruptible": true,
+      "messages": "let me get a consultant on the line for you! I am dialing them on the other line and will stay here with you until they are available. Please hold.",
+      "conditions": [
+        {
+          "or": [
+            {
+              "field": "agrees to transfer",
+              "value": "yes"
+            },
+            {
+              "field": "interested in transfer",
+              "value": "yes"
+            }
+          ]
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "triggered_once",
+          "type": "voice",
+          "new_call": {
+            "agent": "better-call-center",
+            "from_number": "{phone}",
+            "phone_number": "{human_agent_mobile phone}",
+            "pre_merge_message": "You are now connected, good luck!",
+            "parent_fail_message": "I am sorry but I could not connect you, we will call you back later. Good Bye",
+            "contact_name": "BetterMove Agent",
+            "check_dnc_registry": false,
+            "metadata": {
+              "client_phone_number": "{phone}",
+              "client_contact_name": "{contact_name}",
+              "client_contact_full_name": "{contact_full_name}",
+              "lead_id": "{lead_id}",
+              "initiating_agent": "better-move-webform"
+            },
+            "idle_messages": [
+              {
+                "text": "by the way, they're great, I know they're helping a lot of people to sell their houses and I'm sure you'll be really happy!",
+                "timeout": 8
+              },
+              {
+                "text": "Sorry about that, I'm working to get a hold of them for you",
+                "timeout": 8
+              }
+            ]
+          }
+        },
+        {
+          "timing": "performed",
+          "type": "voice",
+          "options": {
+            "call_result": "converted"
+          }
+        }
+      ],
+      "id": "4"
+    },
+    {
+      "name": "hold while connecting",
+      "goal_type": "behave",
+      "priority": -2,
+      "repeat": true,
+      "messages": "The user is waiting for a Better Move consultant to connect, it may take a moment, usually, about one or two minutes.\nBe nice and reassure them that you're dialing the Better Move consultant on the other line, while they are waiting and you will connect them in a minute or two.\nYou may answer their questions to the best of your knowledge while they wait. Try to be brief.\n### If the user objects to being connected with the consultant use the following objection handling strategies\n\n#### Also check for relevant responses from the documentation, try to use a new response each time.",
+      "id": "5"
+    }
+  ],
+  "interrupt_resume": true,
+  "load_root": true,
+  "responses": [
+    {
+      "questions": [
+        "Don't call here again",
+        "Stop Calling me!",
+        "Take me off your list"
+      ],
+      "answers": [
+        "Sure, We will take you off our lists. Have a great day! Bye."
+      ]
+    },
+    {
+      "questions": [
+        "I don't want to talk with you!"
+      ],
+      "answers": [
+        "I respect your time, I promise this call will be short and effective!"
+      ]
+    },
+    {
+      "questions": [
+        "I don't need this"
+      ],
+      "answers": [
+        "There are no costs or any downside in listening to our offer, please let me have a couple of minutes of your time, it can really pay off!"
+      ]
+    },
+    {
+      "questions": [
+        "what is the transfer for?",
+        "where are you transfering me to?",
+        "who am I going to talk to?"
+      ],
+      "answers": [
+        "I'll transfer you to our consulting team, they'll be able to give you an offer for your house."
+      ]
+    },
+    {
+      "questions": [
+        "how long is the waiting?",
+        "how long will it take?",
+        "will I wait for long?"
+      ],
+      "answers": [
+        "It shouldn't take long, they usually pick up quite fast."
+      ]
+    },
+    {
+      "questions": [
+        "it depends on the offer",
+        "what is the offer?"
+      ],
+      "answers": [
+        "our team can give you more information"
+      ]
+    },
+    {
+      "questions": [
+        "I need to think about it."
+      ],
+      "answers": [
+        "No worries, there is no obligation. A quick start today though could give you some clarity."
+      ]
+    },
+    {
+      "questions": [
+        "let me think about it"
+      ],
+      "answers": [
+        "No worries, there is no obligation. A quick start today though could give you some clarity, it could be very beneficial for you to participate in a meeting!"
+      ]
+    },
+    {
+      "questions": [
+        "Does this cost any money?",
+        "Does this cost money?"
+      ],
+      "answers": [
+        "Not to consult with my colleagues, that service is free of charge!"
+      ]
+    }
+  ]
+}

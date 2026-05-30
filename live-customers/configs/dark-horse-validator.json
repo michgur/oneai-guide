@@ -1,0 +1,362 @@
+{
+  "_id": "71254256-6770-4140-a763-3a54c139e41e_2026-05-28T07:18:00.873Z",
+  "id": "71254256-6770-4140-a763-3a54c139e41e_2026-05-28T07:18:00.873Z",
+  "recipe": "configure-your-own",
+  "org_id": "8dxXs3WcUrbVwINZGiwkRI8IPJe2",
+  "is_manually_changed": true,
+  "agent_id": "71254256-6770-4140-a763-3a54c139e41e",
+  "custom_vocabulary": {
+    "CPA": {},
+    "CPAs": {}
+  },
+  "default_metadata": {
+    "%agent_name%": "Sadie",
+    "%company_name%": "Dark Horse CPAs",
+    "cpa_name": "John",
+    "meeting_date": "November 15th",
+    "meeting_time": "2pm",
+    "%booked_meeting_id%": "",
+    "secure_portal_link": "https://portal.darkhorsecpas.com/upload",
+    "%hubspot_meeting_url%": "https://meetings.hubspot.com/dark-horse/website-round-robin",
+    "%call_intro%": "Hi, this is the Dark Horse CPAs AI assistant calling",
+    "%voicemail_message%": "Hi, this is {%agent_name%} from Dark Horse CPAs. I am a scheduling agent calling to confirm your appointment with our team on {meeting_date:words} at {meeting_time:words}.If you can give me a call back, I also would love to collect some high-level information from you so you CPA can be prepared for the call. You can reach me at {%agent_phone_number%:local_phone:digits}.",
+    "%human_message%": "Hi, this is {%agent_name%} from Dark Horse CPAs. I am a scheduling assistant reaching out to confirm your appointment with our team. Please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%responses_reason_for_call%": "I'm reaching out to confirm your upcoming appointment with {cpa_name}.",
+    "%scheduling_voice_message_explainer%": "let me help you reschedule your appointment with {cpa_name}",
+    "%scheduling_meeting_type%": "online",
+    "%scheduling_voice_confirmation_email%": "Perfect! I have rescheduled your appointment with {cpa_name} and you will receive a calendar invite at your email address with all the details.",
+    "%scheduling_voice_confirmation_text%": "I have rescheduled your appointment with {cpa_name} for {meeting slot} and you will get a text message with all of the details.",
+    "%scheduling_voice_sms_message%": "Your appointment with {cpa_name} has been rescheduled for {meeting slot}. Join here: {meeting_link}",
+    "%scheduling-is-conversion%": "yes",
+    "%responses_company_name%": "I'm calling from Dark Horse CPAs. You recently submitted your information on our website.",
+    "%responses_are_you_ai%": "Yes, I am Dark Horses’ AI Agent, but you can call me {%agent_name%}, I hope that's OK.",
+    "%responses_talk_to_a_human%": "Sure, you'll be speaking with {cpa_name} during your scheduled appointment.",
+    "%nli_version%": 9
+  },
+  "experiments": [],
+  "goals": [
+    {
+      "name": "will be attending",
+      "value_type": "approval",
+      "is_selection": true,
+      "conditions": "speaker verification = yes",
+      "messages": [
+        {
+          "message": "I'm reaching out to confirm your upcoming appointment with {cpa_name} on {meeting_date:words} at {meeting_time:words}. Will you be attending?",
+          "conditions": "%call_type% = phone_outbound"
+        },
+        {
+          "message": "I called regarding your scheduled appointment with {cpa_name} on {meeting_date:words} at {meeting_time:words}. Will you be attending?",
+          "conditions": "%call_type% = phone_inbound"
+        },
+        {
+          "message": "Can you confirm you'll be joining your appointment with {cpa_name} on {meeting_date:words} at {meeting_time:words}?"
+        },
+        {
+          "message": "Are you still planning to attend your scheduled appointment with {cpa_name}?"
+        }
+      ],
+      "choices": [
+        {
+          "name": "yes",
+          "acknowledge": "Great! Thank you for confirming.",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "call_result": "converted"
+            }
+          ],
+          "id": "1.1"
+        },
+        {
+          "name": "no",
+          "acknowledge": "No problem.",
+          "id": "1.2"
+        },
+        {
+          "name": "reschedule",
+          "validation_prompt": "User wants to reschedule the appointment",
+          "triggers": [
+            "can I reschedule the appointment?",
+            "I need to reschedule",
+            "can we change the time?"
+          ],
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "%scheduling-via-voice-allowed%": "yes"
+              },
+              "cancel_scheduled_meeting": {},
+              "trigger": "scheduling-via-voice"
+            }
+          ],
+          "id": "1.3"
+        },
+        {
+          "name": "callback",
+          "validation_prompt": [
+            "User wants a call back"
+          ],
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "trigger": "schedule-callback"
+            }
+          ],
+          "id": "1.4"
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "wants to reschedule",
+      "conditions": "will be attending = no",
+      "value_type": "approval",
+      "is_selection": true,
+      "messages": [
+        "Would you like me to help you reschedule your appointment?",
+        "Would you like to pick a new time for your appointment with {cpa_name}?",
+        "Should I help you reschedule it?"
+      ],
+      "fulfillment": [
+        {
+          "timing": "performed",
+          "conditions": "%booked_meeting_id%",
+          "cancel_scheduled_meeting": {}
+        }
+      ],
+      "choices": [
+        {
+          "name": "yes",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "%scheduling-via-voice-allowed%": "yes"
+              },
+              "trigger": "scheduling-via-voice"
+            }
+          ],
+          "id": "2.1"
+        },
+        {
+          "name": "no",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "voice_action": "hang_up",
+              "call_result": "disqualified"
+            }
+          ],
+          "goals": [
+            {
+              "name": "reason for cancellation",
+              "goal_type": "say_generative",
+              "force_exact_response": true,
+              "repeat": true,
+              "messages": "The user expressed they are not interested in the appointment with Dark Horse CPAs. Your goal is to get the reason for the cancellation and the details. If they did not provide a reason, you must ask them 'Can you help me understand why you're canceling?'. If the user indicates they have chosen a different CPA or solution, politely ask who they chose and why. Finally after user answered the question or refused to answer finish the call by saying 'Thank you for that feedback. If you change your mind, feel free to reach out to Dark Horse CPAs. Goodbye!'",
+              "fulfillment": [
+                {
+                  "timing": "agent-said",
+                  "agent_triggers": [
+                    "Thank you for that feedback. If you change your mind, feel free to reach out to Dark Horse CPAs. Goodbye!",
+                    "Goodbye"
+                  ],
+                  "trigger": "hang up"
+                }
+              ],
+              "id": "2.2.1"
+            }
+          ],
+          "id": "2.2"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "transition to faqs",
+      "goal_type": "say",
+      "messages": [
+        "The secure link for uploading your prior‑year tax return is in the email we sent. Before I let you go, clients sometimes ask a few common questions. I can answer general questions and provide some context for what to expect during the meeting. Do you have any questions for me?",
+        "Is there anything else you'd like to know before your meeting with {cpa_name}?"
+      ],
+      "fulfillment": [
+        {
+          "timing": "performed",
+          "trigger": "closing the call"
+        }
+      ],
+      "id": "3"
+    },
+    {
+      "name": "closing the call",
+      "goal_type": "say_generative",
+      "repeat": true,
+      "messages": "End call in multiple turns: ###  Step A: wrap up the call and ask if there is anything else they want to ask  **stop** and wait for the user to confirm. -  ### Step B: answer questions until the user confirms there are no other questions say goodbye and end the call with a polite 'have a nice day!'",
+      "fulfillment": [
+        {
+          "timing": "performed",
+          "conditions": "send secure link = yes",
+          "text_message": {
+            "message": "Here is your secure link to upload your prior-year tax return before your meeting with {cpa_name}: {secure_portal_link}"
+          }
+        }
+      ],
+      "id": "4",
+      "options": {
+        "llm_tools": [
+          {
+            "name": "hang_up",
+            "enabled": true,
+            "description": "End the call and hang up. Always address everything the user said first, then provide a natural, concise farewell to the user, then use this tool. Use when: (1) the conversation naturally concludes, (2) either party indicates they want to end the call, (3) you've reached the wrong person/number, (4) the user requests to hang up, or (5) you need to terminate the call for any reason.",
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            },
+            "fulfillment": {
+              "voice_action": "hang_up"
+            },
+            "uninterruptible": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "information not found handler",
+      "goal_type": "say",
+      "handle_response_type": "information-not-found",
+      "messages": [
+        "I'm a pre-meeting preparation specialist - that's outside my scope. You can discuss this with {cpa_name} during your appointment.",
+        "My role focuses on appointment confirmation and preparation. That question would be better addressed by {cpa_name} during your meeting."
+      ],
+      "id": "5"
+    }
+  ],
+  "goals_update": {
+    "meeting slot": {
+      "options": {
+        "provider": "hubspot",
+        "meeting_link": "{%hubspot_meeting_url%}",
+        "token": "pat-eu1-xxxx"
+      }
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "How much will this cost?",
+        "What are your fees?",
+        "What does it cost?",
+        "what is I am calling about pricing? ",
+        "can you tell me how much it will cost?",
+        "How much will it be? ",
+        "tell me about the pricing structure"
+      ],
+      "answers": [
+        "Each engagement is a bit different and we customize pricing based on what you have going on. We do offer a pricing tool on our website to give you an idea of what your engagement pricing could look like. Your CPA will be able to give you an exact number once you meet up. "
+      ]
+    },
+    {
+      "questions": [
+        "Do you have CPAs in my city?",
+        "Do you have CPAs in my state?",
+        "Are you local?"
+      ],
+      "answers": [
+        "Dark Horse CPAs is a fully remote firm. We match expertise with need, not geography. We do have CPAs across the U.S., so you may have one in your state or city."
+      ]
+    },
+    {
+      "questions": [
+        "Can I meet the CPA in person?",
+        "Do you meet in person?"
+      ],
+      "answers": [
+        "We're fully remote, so meetings are held virtually. This ensures we can match you with the best CPA regardless of location."
+      ]
+    },
+    {
+      "questions": [
+        "Can I drop off physical documents?",
+        "Do you have an office?"
+      ],
+      "answers": [
+        "We do everything digitally. This improves workflow, avoids delays, and ensures all documents—returns, notices, income forms—are available to you at any time through our secure portal."
+      ]
+    },
+    {
+      "questions": [
+        "What is the benefit of meeting with the CPA?",
+        "Why should I take this meeting?"
+      ],
+      "answers": [
+        "That question kind of depends on what you have going on. I am assuming there is something happening in your life right now that triggered the outreach, and we would just want to go through what that is to see if we can help. Sometimes we can and sometimes we can’t but we always want to give you the opportunity to see if we are mutually a good fit."
+      ]
+    },
+    {
+      "questions": [
+        "I'm I'm not sure if I'm ready for this sort of thing.",
+        "I haven't decided yet"
+      ],
+      "answers": [
+        "That question kind of depends on what you have going on. I am assuming there is something happening in your life right now that triggered the outreach, and we would just want to go through what that is to see if we can help. Sometimes we can and sometimes we can’t but we always want to give you the opportunity to see if we are mutually a good fit."
+      ]
+    },
+    {
+      "questions": [
+        "What is the link to send you documents",
+        "I need the link to upload documents"
+      ],
+      "answers": [
+        "The link to upload documents {%secure_document_portal%}"
+      ]
+    },
+    {
+      "questions": [
+        "Does the Initial meeting have a cost?",
+        "Does the first meeting have a cost?",
+        "How much does the first meeting cost?",
+        "How much does the initial meeting cost?"
+      ],
+      "answers": [
+        "The initial discovery call is complimentary, so there is no cost for that meeting. It’s an opportunity to discuss your needs and how we can assist you"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "can you confirm if you have received my documents? ",
+        "can you check if you have received my documents? ",
+        "Have you received my documents? "
+      ],
+      "answers": [
+        "I don’t have visibility on the document upload status from here, but if you uploaded them, your CPA will review them prior to the call. "
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "I want a human now",
+        "can you transfer me to a human"
+      ],
+      "answers": [
+        "Unfortunately, I can not transfer calls as I am only designed to confirm or set up appointments on behalf of our team. "
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "is there an email address?",
+        "can you email me? ",
+        "how can I email you? "
+      ],
+      "answers": [
+        "if you prefer to reach out directly via email, you can send a message to dhc.prospects@darkhorse.cpa for general inquiries, or if you are looking for someone specific you can find our teams emails in their profile on our website in the Teams section."
+      ],
+      "force_response": false
+    }
+  ]
+}
+

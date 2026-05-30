@@ -1,0 +1,334 @@
+{
+  "_id": "ab9ffe84-ccc7-403b-99a6-43817e6fcee3_2026-05-24T14:04:41.841Z",
+  "id": "ab9ffe84-ccc7-403b-99a6-43817e6fcee3_2026-05-24T14:04:41.841Z",
+  "recipe": "configure-your-own",
+  "org_id": "ctb5uDaaQ7XaqUAf15O6Sx7ojqy2",
+  "is_manually_changed": true,
+  "agent_id": "ab9ffe84-ccc7-403b-99a6-43817e6fcee3",
+  "default_metadata": {
+    "%company_name%": "Apple Debt Relief",
+    "%agent_name%": "Alex",
+    "specialist_phone": "+13025668515",
+    "%speaker_verification_acknowledge%": "",
+    "%call_intro%": "Hi",
+    "%speaker_verification_question%": "Is this {contact_name}?",
+    "%voicemail_message%": "Hi, this is {%agent_name%} from {%company_name%}. Please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%human_message%": "Hi, this is {%agent_name%} from {%company_name%}. Please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%responses_reason_for_call%": "I'm calling because it looks like your business may be dealing with a lawsuit from an MCA creditor.",
+    "%responses_company_name%": "{%company_name%} specializes in helping business owners resolve high-pressure business debt.",
+    "%responses_are_you_ai%": "I am an AI assistant helping {%company_name%} connect business owners with debt specialists.",
+    "%responses_list_source%": "We received information indicating your business may be dealing with merchant cash advance or business debt issues.",
+    "%contact_discovery_ownership%": "a lawsuit from an MCA creditor that your business may be dealing with",
+    "%contact_discovery_reason%": "Can you transfer me to your legal department? it is regarding a lawsuit from an MCA creditor that your business may be dealing with, and I'd like to make sure we have the right contact to discuss it with",
+    "creditor": null
+  },
+  "experiments": [
+    {
+      "name": "Script variation May",
+      "test_groups": [
+        {
+          "name": "version 1",
+          "percent": 50
+        },
+        {
+          "name": "version 2",
+          "percent": 50
+        }
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "name": "version 1 flow",
+      "conditions": "Script variation May = version 1",
+      "goals": [
+        {
+          "name": "bad time to talk",
+          "value_type": "approval",
+          "is_qualifier": true,
+          "evaluate_on_trigger": false,
+          "acknowledge": false,
+          "messages": [
+            {
+              "message": "I'm calling because your business may be dealing with a business debt lawsuit. This isn't a sales call — I just want to see if you have representation in place. Is now a bad time to talk?",
+              "conditions": "creditor $any"
+            },
+            {
+              "message": "I’m Alex, I'm calling because I see your business is dealing with a lawsuit from {creditor}. This isn't a sales call — I just want to see if you have representation in place. Is now a bad time to talk?"
+            },
+            {
+              "message": "Is now a good time to go over a few quick questions about your situation?"
+            },
+            {
+              "message": "Can we take just a moment to make sure you have the right support in place?"
+            }
+          ],
+          "choices": [
+            {
+              "name": "yes",
+              "id": "1.1.1"
+            },
+            {
+              "name": "no",
+              "goals": [
+                {
+                  "name": "got zero balance letter",
+                  "value_type": "approval",
+                  "is_qualifier": true,
+                  "acknowledge": false,
+                  "messages": [
+                    {
+                      "message": "You spoke with my team last month about {creditor}. At the time you mentioned you were taking care of it on your own — did you end up getting a zero balance letter from them?",
+                      "conditions": "creditor $any"
+                    },
+                    {
+                      "message": "You spoke with my team last month about a creditor issue. At the time you mentioned you were taking care of it on your own — did you end up getting a zero balance letter from them?"
+                    },
+                    {
+                      "message": "Last time we spoke, you were handling the {creditor} situation yourself — were you able to get that zero balance letter resolved?",
+                      "conditions": "creditor $any"
+                    },
+                    {
+                      "message": "Were you able to get a zero balance letter from the creditor after handling it on your own?"
+                    }
+                  ],
+                  "refusal_handling": [
+                    "I just want to make sure everything got resolved properly on your end."
+                  ],
+                  "choices": [
+                    {
+                      "name": "yes",
+                      "acknowledge": "Glad everything worked out!",
+                      "goals": [
+                        {
+                          "name": "resolved v2",
+                          "goal_type": "say",
+                          "force_exact_response": true,
+                          "exclusive_message": true,
+                          "messages": "Feel free to reach out if anything comes up in the future. Take care!",
+                          "fulfillment": [
+                            {
+                              "timing": "performed",
+                              "voice_action": "hang_up",
+                              "call_result": "disqualified"
+                            }
+                          ],
+                          "id": "1.1.2.1.1.1"
+                        }
+                      ],
+                      "id": "1.1.2.1.1"
+                    },
+                    {
+                      "name": "not relevant",
+                      "id": "1.1.2.1.2",
+                      "acknowledge": "",
+                      "triggers": [
+                        "not relevant any more",
+                        "not interested",
+                        "don't need help"
+                      ]
+                    }
+                  ],
+                  "id": "1.1.2.1"
+                }
+              ],
+              "id": "1.1.2"
+            }
+          ],
+          "id": "1.1"
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "version 2 flow",
+      "conditions": "Script variation May = version 2",
+      "goals": [
+        {
+          "name": "got zero balance letter",
+          "value_type": "approval",
+          "is_qualifier": true,
+          "acknowledge": false,
+          "messages": [
+            {
+              "message": "Hi, You spoke with my team last month about {creditor}. At the time you mentioned you were taking care of it on your own — did you end up getting a zero balance letter from them?",
+              "conditions": "creditor $any"
+            },
+            {
+              "message": "You spoke with my team last month about a creditor issue. At the time you mentioned you were taking care of it on your own — did you end up getting a zero balance letter from them?"
+            },
+            {
+              "message": "Last time we spoke, you were handling the {creditor} situation yourself — were you able to get that zero balance letter resolved?",
+              "conditions": "creditor $any"
+            },
+            {
+              "message": "Were you able to get a zero balance letter from the creditor after handling it on your own?"
+            }
+          ],
+          "refusal_handling": [
+            "I just want to make sure everything got resolved properly on your end."
+          ],
+          "choices": [
+            {
+              "name": "yes",
+              "acknowledge": "Glad everything worked out!",
+              "goals": [
+                {
+                  "name": "resolved v2",
+                  "goal_type": "say",
+                  "force_exact_response": true,
+                  "exclusive_message": true,
+                  "messages": "Feel free to reach out if anything comes up in the future. Take care!",
+                  "fulfillment": [
+                    {
+                      "timing": "performed",
+                      "voice_action": "hang_up",
+                      "call_result": "disqualified"
+                    }
+                  ],
+                  "id": "2.1.1.1"
+                }
+              ],
+              "id": "2.1.1"
+            },
+            {
+              "name": "no",
+              "id": "2.1.2"
+            },
+            {
+              "name": "not relevant",
+              "id": "2.1.3",
+              "acknowledge": "",
+              "triggers": [
+                "not relevant any more",
+                "not interested",
+                "don't need help"
+              ]
+            }
+          ],
+          "id": "2.1"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "transfer to specialist",
+      "conditions": "got zero balance letter = no",
+      "priority": -2,
+      "goal_type": "say",
+      "uninterruptible": true,
+      "messages": "Let me send you to someone who can help. Hold on.",
+      "fulfillment": [
+        {
+          "timing": "triggered_once",
+          "new_call": {
+            "agent": "apple-dr-callcenter",
+            "phone_number": "{specialist_phone}",
+            "pre_merge_message": "You are now connected with our specialist.",
+            "parent_fail_message": "I'm sorry, but our specialist is not available right now. We'll have someone call you back shortly.",
+            "contact_name": "Apple Debt Relief Specialist",
+            "check_dnc_registry": false,
+            "metadata": {
+              "client_contact_name": "{contact_name}",
+              "client_contact_full_name": "{contact_full_name}",
+              "client_phone": "{phone}",
+              "creditor": "{creditor}",
+              "script_version": "{Script variation May}"
+            },
+            "idle_messages": [
+              {
+                "text": "I'm connecting you with our specialist now. They have extensive experience with business debt resolution.",
+                "timeout": 10
+              },
+              {
+                "text": "Just a moment while I get our specialist on the line for you.",
+                "timeout": 8
+              }
+            ]
+          }
+        },
+        {
+          "timing": "performed",
+          "call_result": "converted"
+        }
+      ],
+      "goals": [
+        {
+          "name": "hold while connecting",
+          "goal_type": "say_generative",
+          "priority": -2,
+          "repeat": true,
+          "conditions": "transfer to specialist $performed",
+          "messages": "The user is waiting for an Apple Debt Relief specialist to connect. Be reassuring and professional. Let them know you're working to connect them with someone who can help with their business debt situation. Keep responses brief and calm. If they have questions while waiting, acknowledge them and remind them the specialist will be able to provide detailed answers.",
+          "id": "3.1"
+        }
+      ],
+      "id": "3"
+    },
+    {
+      "name": "handle unknown questions",
+      "value_type": "approval",
+      "goal_type": "ask",
+      "cost": 1000,
+      "handle_response_type": "information-not-found",
+      "messages": [
+        "That's a great question — let me transfer you to someone who can answer that properly. Sound good?",
+        "I want to make sure you get accurate information. Would it be helpful if I connected you with a specialist who can address that?",
+        "Our specialist will be able to give you the detailed information you need. Should I connect you with them?"
+      ],
+      "refusal_handling": [
+        "I understand you may have concerns, but our specialist can provide clarity without any obligation."
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "handle unknown questions = yes",
+          "trigger": "transfer to specialist"
+        }
+      ],
+      "id": "4"
+    }
+  ],
+  "responses": [
+    {
+      "questions": [
+        "Is this a loan or consolidation?"
+      ],
+      "answers": [
+        "No — this is not a loan or consolidation."
+      ]
+    },
+    {
+      "questions": [
+        "Do you settle debt?"
+      ],
+      "answers": [
+        "We help businesses explore settlement, restructuring, or legal resolution options depending on the situation."
+      ]
+    },
+    {
+      "questions": [
+        "Do you guarantee results?"
+      ],
+      "answers": [
+        "No one can guarantee outcomes, but we focus on reducing pressure and finding workable solutions."
+      ]
+    },
+    {
+      "questions": [
+        "Is this bankruptcy?"
+      ],
+      "answers": [
+        "No — this is not bankruptcy."
+      ]
+    },
+    {
+      "questions": [
+        "How much does it cost?"
+      ],
+      "answers": [
+        "Costs depend on the situation. A specialist can explain that after reviewing your case."
+      ]
+    }
+  ]
+}

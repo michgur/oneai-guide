@@ -1,0 +1,436 @@
+{
+  "_id": "a6f805ed-6081-446d-b5c9-20fd3165bd91_2026-05-28T07:12:03.165Z",
+  "id": "a6f805ed-6081-446d-b5c9-20fd3165bd91_2026-05-28T07:12:03.165Z",
+  "recipe": "configure-your-own",
+  "org_id": "8dxXs3WcUrbVwINZGiwkRI8IPJe2",
+  "is_manually_changed": true,
+  "agent_id": "a6f805ed-6081-446d-b5c9-20fd3165bd91",
+  "default_metadata": {
+    "%company_name%": "Dark Horse CPAs",
+    "%agent_name%": "Sadie",
+    "%secure_document_portal%": "https://darkhorsecpas.sharefile.com/",
+    "%call_intro%": "Hi, This is {%agent_name%}, Dark Horse CPAs AI Scheduling Assistant calling",
+    "_%speaker_verification_acknowledge%": "Great",
+    "%voicemail_message%": "Hi, this is {%agent_name%} from Dark Horse CPAs. I am our scheduling agent and was reaching out to get you on one of our CPAs calendar. If you can give me a call back I would be happy to get you on the calendar, and collect some high level information from you to help your CPA prepare for the call. You can reach me at {%agent_phone_number%:local_phone:digits}.",
+    "%human_message%": "Hi, this is {%agent_name%} from Dark Horse CPAs. I am a scheduling assistant reaching out to book your appointment with our team. Please call me back at {%agent_phone_number%:local_phone:digits}.",
+    "%responses_reason_for_call%": "I'm reaching out to confirm we received your inquiry and wanted to schedule a time for you to meet with one of our CPAs.",
+    "%responses_list_source%": "I see that you submitted an inquiry through our website.",
+    "%scheduling_meeting_type%": "virtual meeting",
+    "%scheduling_voice_message_explainer%": "What day and time work best for you and I can see what our openings look like.",
+    "%post_scheduling_goal%": "FAQs and call end",
+    "%hubspot_meeting_url%": "https://meetings.hubspot.com/dark-horse/website-round-robin",
+    "%responses_are_you_ai%": "Yes, I am Dark Horses’ AI Agent, but you can call me {%agent_name%}, I hope that's OK.",
+    "%responses_talk_to_a_human%": "Sure, you'll be speaking with {cpa_name} during your scheduled appointment.",
+    "%schedule_message_ask_for_mobile_phone%": "You will receive an email notification with the meeting details. Just a heads up it’s a Video meeting through Microsoft teams. I can also send you a text message with the invite and details, should I send it to this number or do you want to give me a mobile phone number to send the invite to?",
+    "%scheduling_voice_confirmation_email%": "I have scheduled your meeting, and you will get an email with an invite to your inbox, ok?",
+    "%responses_company_name%": "I'm calling from Dark Horse CPAs.",
+    "%nli_version%": 9
+  },
+  "experiments": [
+    {
+      "name": "Scheduling Model",
+      "test_groups": [
+        {
+          "name": "test",
+          "percent": 50,
+          "goals_update": {
+            "meeting slot": {
+              "generative_model": "gpt-5.4-mini",
+              "messages": [
+                "Schedule time for {%scheduling_meeting_type%/online} meeting with the user.\n\n## Opening:\n- Say: \"{%scheduling_voice_message_explainer%}\"\n\n## Scheduling process:\n- Suggest a couple of slots, always phrase suggestions as a question (e.g. \"Would [x] or [y] work for you?\", \"How about [x] or [y]?\", vary it a little).\n- Repeat until the user selects a slot.\n\n## Confirmation:\n- When the user selects a slot, confirm: \"Do you mean the slot at [start time], is that correct?\" — no additional text.\n- After the user confirms, continue to re-confirm in different phrasing each time, indefinitely.\n\n## Slot suggestion rules:\n- Suggest a maximum of 2 slots per turn. Do not use numbering.\n- Always use hh:mma format for hours.\n- Only suggest slots explicitly listed in the available slots below.\n- If the user requests a specific time range, only suggest slots that match their criteria.\n- For slots within 7 days: use day name only (e.g., Monday / Tuesday / Wednesday), no date.\n- For slots more than 7 days away: include the date.\n- If no slots match the user's requested range, explain and suggest a nearby range that has availability.\n- If no slots are available at all, say so{%multi_location_scheduling%=yes?\" and suggest to look for slots in a different location\"}.\n\n## Reference:\n- Meetings are {%slot_durations%} minutes long.\n- All listed times are start times. End time = start + {%slot_durations%} minutes.\n- Today: {%today%}.\n- User timezone: {timezone_name->display_value} [{timezone_name/not required}].\n{%unavailable_requested_slot%}\n## Available slots{%scheduling_filter% $any ? \" matching filter\"}{%scheduling_filter%} ({timezone_name}):{%options%}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "name": "good time to schedule",
+      "value_type": "approval",
+      "passive_detection": true,
+      "messages": [
+        {
+          "message": "I'm reaching out to confirm we received your inquiry, and wanted to schedule a time for you to meet with one of our CPAs to dive into your situation a bit further. Is this a good time to get your appointment scheduled?",
+          "conditions": "%call_type% = phone_outbound"
+        },
+        {
+          "message": "I called to confirm that we received your inquiry, and wanted to schedule a time for you to meeting with one of our CPAs to dive into your situation a bit further. Is this a good time to get your appointment scheduled?",
+          "conditions": "%call_type% = phone_inbound"
+        },
+        {
+          "message": "Would now be a good time to get your CPA meeting scheduled?"
+        },
+        {
+          "message": "Can we take a few minutes to schedule your appointment with one of our CPAs?"
+        }
+      ],
+      "refusal_handling": [
+        "I understand timing can be tricky. This will just take a couple minutes to get scheduled."
+      ],
+      "choices": [
+        {
+          "name": "no",
+          "goals": [
+            {
+              "name": "wants callback",
+              "value_type": "approval",
+              "is_selection": true,
+              "messages": [
+                "but before I close out your inquiry, is there a better time I can call you back to get you scheduled with one of our CPAs?",
+                "Would you prefer I call you back at a more convenient time?",
+                "Should I schedule a callback for when you have more time?"
+              ],
+              "fulfillment": [
+                {
+                  "timing": "collected",
+                  "conditions": "wants callback = yes",
+                  "trigger": "schedule-callback"
+                },
+                {
+                  "timing": "collected",
+                  "conditions": "wants callback = no",
+                  "values": {
+                    "call_result": "disqualified"
+                  }
+                }
+              ],
+              "choices": [
+                {
+                  "name": "yes",
+                  "acknowledge": "Perfect, let me get that scheduled for you.",
+                  "id": "1.1.1.1"
+                },
+                {
+                  "name": "do it now",
+                  "validation_prompt": "User wants to talk now.",
+                  "priority": 1,
+                  "id": "1.1.1.2"
+                },
+                {
+                  "name": "no",
+                  "goals": [
+                    {
+                      "name": "website booking option",
+                      "goal_type": "say",
+                      "force_exact_response": true,
+                      "exclusive_message": true,
+                      "messages": "No problem, if you change your mind, you can always find some time on our website using the \"Talk to a CPA\" button on the top right. Thank you for your time and have a wonderful day.",
+                      "fulfillment": [
+                        {
+                          "timing": "performed",
+                          "voice_action": "hang_up"
+                        }
+                      ],
+                      "id": "1.1.1.3.1"
+                    }
+                  ],
+                  "id": "1.1.1.3"
+                }
+              ],
+              "id": "1.1.1"
+            }
+          ],
+          "id": "1.1"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "wants callback != no",
+          "values": {
+            "%scheduling-via-voice-allowed%": "yes"
+          }
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "confirm contact details",
+      "conditions": "good time to schedule = yes",
+      "goals": [
+        {
+          "name": "collect details into",
+          "appended": true,
+          "goal_type": "say",
+          "messages": "First, let's make sure we have all your contact information.",
+          "id": "2.1"
+        },
+        {
+          "name": "confirm name",
+          "enabled": false,
+          "goal_type": "ask",
+          "messages": "I have your name as {contact_full_name}, is that correct?",
+          "id": "2.2"
+        },
+        {
+          "name": "confirm email",
+          "copy_from": "confirm-email",
+          "id": "2.3"
+        },
+        {
+          "name": "confirm phone",
+          "copy_from": "confirm-phone",
+          "id": "2.4"
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "FAQs and call end",
+      "goal_type": "say_generative",
+      "priority": -10,
+      "messages": [
+        {
+          "message": "Before I let you go, do you have any questions for me that I can help answer?",
+          "generative": false,
+          "repeat": false
+        },
+        {
+          "message": "Answer allowed questions the user has, after answering confirm with the user if they have additional questions and wait for the answer. If the user needs more time or is still thinking tell them 'take your time'. If the user has no more questions or ready to end the call say: 'You're all set for your meeting on {%meeting_scheduled_time_local%:words}. Thank you and have a wonderful day!'",
+          "conditions": "%meeting_scheduled% = yes"
+        },
+        {
+          "message": "Answer allowed questions the user has, after answering confirm with the user if they have additional questions and wait for the answer.  If the user needs more time or is still thinking tell them 'take your time'. If the user has no more questions or ready to end the call say: Thank you and have a wonderful day!'",
+          "conditions": "%meeting_scheduled% != yes"
+        }
+      ],
+      "repeat": true,
+      "fulfillment": [
+        {
+          "timing": "agent-said",
+          "agent_triggers": [
+            "Thank you and have a wonderful day!",
+            "Good bye"
+          ],
+          "trigger": "hang up"
+        }
+      ],
+      "id": "3"
+    }
+  ],
+  "goals_update": {
+    "meeting slot": {
+      "options": {
+        "provider": "hubspot",
+        "meeting_link": "{%hubspot_meeting_url%}",
+        "booking_request_fields": {
+          "formFields": [
+            {
+              "name": "What would you like to discuss with your dedicated CPA? Provide as much detail as possible.",
+              "value": "Scheduled by OneAI"
+            },
+            {
+              "name": "phone",
+              "value": "{mobile phone/phone/10000000}"
+            }
+          ]
+        }
+      }
+    },
+    "call screener handling": {
+      "messages": {
+        "0": {
+          "pre_message": ""
+        }
+      }
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "How much will this cost?",
+        "What are your fees?",
+        "What does it cost?",
+        "What are the fees for this type of engagement ",
+        "How much will it cost? ",
+        "How much will it be? "
+      ],
+      "answers": [
+        "Every engagement is unique, so pricing depends on factors such as your sources of income, states you file in, whether you own a business, your assets, and your marital status. We take an Advisory-First approach with our clients, meaning Tax Planning is included in every engagement. We require at least a once a year meet up with your CPA, before the end of the filing year, so we can capture and identify any strategies that will save you money. Starting fees are fifteen hundred dollars for an individual return and twenty five hundred dollars for a business return. Both increase with complexity. This includes filing the return, filing extensions, audit and identity-theft protection for individual returns, updating quarterly estimated tax payments if applicable, and a dedicated tax planning meeting before year-end. For bookkeeping, fees start at five hundred dollars per month for cash based bookkeeping and increase from there based on complexity."
+      ]
+    },
+    {
+      "questions": [
+        "Do you have CPAs in my city?",
+        "Do you have CPAs in my state?",
+        "Are you local?"
+      ],
+      "answers": [
+        "Dark Horse CPAs is a fully remote firm. We match expertise with need, not geography. We do have CPAs across the U.S., so you may have one in your state or city."
+      ]
+    },
+    {
+      "questions": [
+        "Can I meet the CPA in person?",
+        "Do you meet in person?"
+      ],
+      "answers": [
+        "We're fully remote, so meetings are held virtually. This ensures we can match you with the best CPA regardless of location."
+      ]
+    },
+    {
+      "questions": [
+        "Can I drop off physical documents?",
+        "Do you have an office?"
+      ],
+      "answers": [
+        "We do everything digitally. This improves workflow, avoids delays, and ensures all documents—returns, notices, income forms—are available to you at any time through our secure portal."
+      ]
+    },
+    {
+      "questions": [
+        "What is the benefit of meeting with the CPA?",
+        "Why should I take this meeting?"
+      ],
+      "answers": [
+        "That question kind of depends on what you have going on. I am assuming there is something happening in your life right now that triggered the outreach, and we would just want to go through what that is to see if we can help. Sometimes we can and sometimes we can’t but we always want to give you the opportunity to see if we are mutually a good fit."
+      ]
+    },
+    {
+      "questions": [
+        "I'm I'm not sure if I'm ready for this sort of thing.",
+        "I haven't decided yet"
+      ],
+      "answers": [
+        "That question kind of depends on what you have going on. I am assuming there is something happening in your life right now that triggered the outreach, and we would just want to go through what that is to see if we can help. Sometimes we can and sometimes we can’t but we always want to give you the opportunity to see if we are mutually a good fit."
+      ]
+    },
+    {
+      "questions": [
+        "What is the link to send you documents",
+        "I need the link to upload documents"
+      ],
+      "answers": [
+        "The link to upload documents {%secure_document_portal%}"
+      ]
+    },
+    {
+      "questions": [
+        "Why can’t you meet with new clients before April 15?",
+        "Why can’t you meet with new clients before that?"
+      ],
+      "answers": [
+        "Right now, all of our CPAs are heads down during tax season finalizing returns for current clients, so they simply do not have the capacity to take on many new client meetings before the deadline"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "If I become a new client now, will you file my return by April 15?",
+        "As a new client, will you file my return by April 15?",
+        "If I am a new client, will you file my return by 15 April? "
+      ],
+      "answers": [
+        "Generally, no. We do not typically file new client returns received after March 1 by April 15. In most cases, the next step is to file an extension."
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        " What is an extension?",
+        "How does an extension work? ",
+        "How will an extension help me?"
+      ],
+      "answers": [
+        "An extension gives you more time to file your tax return, but not more time to pay your taxes.\n"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        " How do you usually handle extensions for new clients?"
+      ],
+      "answers": [
+        "Generally, we estimate the tax payment that should be made by April 15 and file an extension. Then, after we meet, review everything, and get the return fully under control, we prepare and file the return by the extended deadline.\n"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "When is the extended filing deadline?",
+        "When is the extension until? "
+      ],
+      "answers": [
+        "October 15. So, in simple terms, payment is generally due by April 15, but the return itself can usually be filed by October 15 if an extension is properly filed.\n"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "Does the Initial meeting have a cost?",
+        "Does the first meeting have a cost?",
+        "How much does the first meeting cost?",
+        "How much does the initial meeting cost?"
+      ],
+      "answers": [
+        "The initial discovery call is complimentary, so there is no cost for that meeting. It’s an opportunity to discuss your needs and how we can assist you"
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "When do you have available times?",
+        "Can we meet at 2pm?"
+      ],
+      "answers": [
+        "I'll check in a minute, but first [continue primary task]"
+      ],
+      "conditions": "%active_goal% <> meeting slot and %active_goal% <> callback slot"
+    },
+    {
+      "questions": [
+        "what if I'm calling about pricing?",
+        "Can you tell me about pricing? "
+      ],
+      "answers": [
+        "Each engagement is different and we customize pricing based on what you have going on. We do offer a pricing tool on our website to give you an idea of what your engagement pricing could look like. Your CPA will be able to give you an exact number once you meet up. "
+      ],
+      "force_response": true
+    },
+    {
+      "questions": [
+        "Can you confirm if you received my documents?",
+        "Have you received my documentation? ",
+        "Have you received my docs",
+        "Can you check if you have received my documents"
+      ],
+      "answers": [
+        "I don’t have visibility on the document upload status from here, but if you uploaded them, your CPA will review them prior to the call. "
+      ],
+      "force_response": true
+    },
+    {
+      "questions": [
+        "I want a human now",
+        "transfer me to a human"
+      ],
+      "answers": [
+        "Unfortunately, I can not transfer calls as I am only designed to confirm or set up appointments on behalf of our team. "
+      ],
+      "force_response": true
+    },
+    {
+      "questions": [
+        "Yeah. Do you provide strategies on w 4 and the next year's filings?"
+      ],
+      "answers": [
+        "We review every strategy available specific to your income sources. Although I can not answer that question directly, it is absolutely something to go over with your CPA when you have your meeting."
+      ],
+      "force_response": false
+    },
+    {
+      "questions": [
+        "Do you have an email address",
+        "Is there an email I can connect with?",
+        "Can I email someone",
+        "Can you email me?"
+      ],
+      "answers": [
+        "Yes if you prefer to reach out directly via email, you can send a message to dhc.prospects@darkhorse.cpa for general inquiries, or if you are looking for someone specific you can find our teams emails in their profile on our website in the Teams section."
+      ],
+      "force_response": false
+    }
+  ]
+}

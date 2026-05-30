@@ -1,0 +1,461 @@
+{
+  "_id": "bae0e229-f7e5-491b-b554-f82e7162bdb0_2026-05-01T09:29:30.851Z",
+  "id": "bae0e229-f7e5-491b-b554-f82e7162bdb0_2026-05-01T09:29:30.851Z",
+  "recipe": "configure-your-own",
+  "org_id": "RSzBATPd5OfXo5KpaPWB8ORkuik2",
+  "is_manually_changed": true,
+  "agent_id": "bae0e229-f7e5-491b-b554-f82e7162bdb0",
+  "cooldown_on_agent_ignore": 0,
+  "cooldown_on_user_ignore": 0,
+  "default_metadata": {
+    "%company_name%": "{brand/Care in homes:words}",
+    "%agent_name%": "Harmony",
+    "%voicemail_message%": "Hi this is {%agent_name%} with Care In Homes, following up about your request for in-home care.  Please call me back at  {%agent_phone_number%:local_phone:digits_no_grouping}. Thank you and have a great day. ",
+    "%human_message%": "Hi this is {%agent_name%} with Care In Homes, following up about your request for in-home care.  Please call me back at  {%agent_phone_number%:local_phone:digits_no_grouping}. Thank you and have a great day. ",
+    "_interests": [
+      "in_home"
+    ],
+    "_zip code verification": "yes",
+    "_still looking for care": "yes",
+    "_care recipient": "Mother",
+    "_care service timeline": "Immediately",
+    "_number of weekly care days": "4 or 5 days",
+    "_number of daily care hours": "Less than 4 hours",
+    "%responses_reason_for_call%": "This call is a response to an inquiry you submitted on {lander/brand/Care in homes:words}",
+    "%responses_list_source%": "This call is a response to an inquiry you submitted on {lander/brand/Care in homes:words}",
+    "%call_intro%": "Hello this is {%agent_name%} with {brand:words}",
+    "%speaker_verification_acknowledge%": "Nice meeting you",
+    "%responses_are_you_ai%": "Yes, I am an AI agent. My goal is to get you connected with a live person. ",
+    "%responses_is_this_a_scam%": "Not at all! We are only calling because there was a request on {lander/brand/Care in homes:words} for In-Home care. ",
+    "%responses_talk_to_a_human%": "I will certainly get you connected with a human. I just need to confirm that you are looking for care first. ",
+    "%responses_dont_like_ai%": "I understand. I can connect you with a human, but I just need to confirm that you are looking for care first. ",
+    "%responses_agent_name%": "My name is {%agent_name%}.",
+    "%responses_company_name%": "I am calling on behalf of {brand:words}."
+  },
+  "experiments": [
+    {
+      "name": "Voices Match - Sept 30th fixed",
+      "description": "New Voices",
+      "test_groups": [
+        {
+          "name": "Raquel",
+          "percent": 34
+        },
+        {
+          "name": "Talia",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "62KnlCDSwsvFlozWxTdp"
+            }
+          }
+        },
+        {
+          "name": "Beka",
+          "percent": 33,
+          "config": {
+            "voice_config": {
+              "voice_id": "dp67thqO6rCHvdVYpp2z"
+            }
+          }
+        }
+      ],
+      "id": "1",
+      "enabled": true
+    }
+  ],
+  "goals": [
+    {
+      "name": "speak on behalf",
+      "priority": 10,
+      "conditions": "speaker verification = no",
+      "value_type": "approval",
+      "messages": [
+        {
+          "message": "So would you be the right person to speak to on behalf of {contact_name}?"
+        },
+        {
+          "message": "Can I talk to you on their behalf?"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "speak on behalf=yes",
+          "values": {
+            "speaker verification": "yes"
+          }
+        }
+      ],
+      "id": "1"
+    },
+    {
+      "name": "still looking for care",
+      "detection_name": "looking for care",
+      "value_type": "approval",
+      "is_selection": true,
+      "acknowledge": "Okay.",
+      "conditions": "speaker verification",
+      "fulfillment": [
+        {
+          "timing": "triggered",
+          "note": "after verifying contact identity, disposition is failed unless overriden",
+          "values": {
+            "disposition": "failed"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "message": "I'm with {brand:words}, following up on behalf of {selected partner name:words}, are you still looking for home care options?",
+          "conditions": "%call_type% = phone_inbound and %performed_count% = 0"
+        },
+        {
+          "message": "Thank you for calling me back!  I'm with {brand:words}, following up on behalf of {selected partner name:words}. Are you still looking for home care options?",
+          "conditions": "%call_type% = phone_inbound"
+        },
+        {
+          "message": "I'm following up on behalf of {selected partner name:words}, are you still interested in getting options for home care?"
+        },
+        {
+          "message": "I'm with {brand:words}, following up on behalf of {selected partner name:words} regarding your interest in home care options. Are you still exploring solutions for your home care needs?"
+        }
+      ],
+      "goals": [
+        {
+          "name": "yes",
+          "acknowledge": "Sounds good.",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "disposition": "failed"
+              },
+              "call_result": "contact_verified"
+            }
+          ],
+          "id": "2.1"
+        },
+        {
+          "name": "no",
+          "goals": [
+            {
+              "name": "client not interested",
+              "goal_type": "say",
+              "force_exact_response": true,
+              "exclusive_message": true,
+              "messages": "[SPEED=0.8]Ok, Thank you for your time today. If you decide in the future you would like to further explore care options, please give {%company_name%} a call. Have a great day!",
+              "fulfillment": [
+                {
+                  "timing": "performed",
+                  "values": {},
+                  "voice_action": "hang_up"
+                }
+              ],
+              "id": "2.2.1"
+            }
+          ],
+          "id": "2.2",
+          "fulfillment": [
+            {
+              "timing": "collected",
+              "values": {
+                "disposition": "no_longer_interested"
+              },
+              "call_result": "disqualified"
+            }
+          ]
+        }
+      ],
+      "id": "2"
+    },
+    {
+      "name": "agrees to transfer",
+      "conditions": "still looking for care = yes",
+      "value_type": "approval",
+      "is_selection": true,
+      "acknowledge": "Okay.",
+      "objection_handling": [
+        "It shouldn't take long, they usually answer quickly"
+      ],
+      "messages": [
+        {
+          "message": "A care consult will only take a few minutes.  I’d like to bring them on the line to speak with you, would that be okay?"
+        },
+        {
+          "message": "Can I connect you to a care specialist to get details about using {selected partner name:words} as your care provider?"
+        },
+        {
+          "message": "May I go ahead and connect you with {selected partner name:words} to explore care options?"
+        },
+        {
+          "message": "Can I connect you?"
+        }
+      ],
+      "fulfillment": [
+        {
+          "timing": "collected",
+          "conditions": "agrees to transfer = no",
+          "values": {
+            "disposition": "no_longer_interested"
+          },
+          "call_result": "disqualified",
+          "trigger": "hang up"
+        }
+      ],
+      "id": "3"
+    },
+    {
+      "name": "transfer to representative",
+      "priority": -2,
+      "goal_type": "say",
+      "uninterruptible": true,
+      "messages": [
+        {
+          "message": "it will take no longer than 1 minute for me to connect you."
+        }
+      ],
+      "conditions": "agrees to transfer = yes",
+      "fulfillment": [
+        {
+          "timing": "triggered_once",
+          "webhook": {
+            "_url": "https://rosetta.pipelinesuccess.com/calls/live_transfer",
+            "url": "https://api.pipelinesuccess.com/calls/live_transfer",
+            "headers": {
+              "authorization": "Bearer ff42e736376b0a5636174b366751176b886e2532628030c81581a482f466532ed8bebe8e32022556bf0aaf0420879da17fb3be66cb21c27d4efde32b6b2e831b",
+              "Content-Type": "application/json"
+            },
+            "body": {
+              "id": "{pipeline_success_contact_id}",
+              "target_id": "{selected partner id}",
+              "willing_to_transfer": true,
+              "reason": "",
+              "notes": "spoke to transfer: No"
+            }
+          }
+        },
+        {
+          "timing": "triggered_once",
+          "values": {
+            "disposition": "transfer-in-progress"
+          },
+          "new_call": {
+            "agent": "pipeline-success-callcenter",
+            "phone_number": "{selected partner phone/+18042922605}",
+            "pre_merge_message": "You are now connected.",
+            "parent_fail_message": "I am sorry but I could not connect you, we will call you back later. Good Bye",
+            "from_number": "{phone}",
+            "contact_name": "{selected partner name/Home Care dot com:words}",
+            "check_dnc_registry": false,
+            "metadata": {
+              "disposition": "verified",
+              "source_agent": "homecare-leads",
+              "%agent_name%": "Harmony",
+              "brand": "{brand/%company_name%/Care in Homes:words}",
+              "contact_name": "{selected partner name/Home Care dot com:words}",
+              "contact_last_name": " ",
+              "client_phone_number": "{phone:local_phone:digits_no_grouping}",
+              "client_first_name": "{contact_name}",
+              "client_last_name": "{contact_last_name}",
+              "client_full_name": "{contact_full_name}",
+              "client zip code": "{search_zip:digits_no_grouping}",
+              "care service timeline": "{care service timeline}",
+              "number of weekly care days": "{number of weekly care days}",
+              "number of daily care hours": "{number of daily care hours}",
+              "budget for senior care": "{budget category}",
+              "pipeline_success_contact_id": "{pipeline_success_contact_id}"
+            },
+            "idle_messages": [
+              {
+                "text": "I'm currently calling them on the other line. It shouldn't be much longer",
+                "timeout": 12
+              },
+              {
+                "text": "Sorry about the delay, I'm working to bring them on the phone",
+                "timeout": 14
+              },
+              {
+                "text": "Thank you for your patience",
+                "timeout": 16
+              },
+              {
+                "text": "It's usually much faster but I am still working on getting them on the line, shouldn't take much longer",
+                "timeout": 60
+              },
+              {
+                "text": "Still working on it, thanks for being patient",
+                "timeout": 60
+              }
+            ]
+          }
+        },
+        {
+          "timing": "performed",
+          "call_result": "converted"
+        }
+      ],
+      "id": "4"
+    },
+    {
+      "name": "hold while connecting",
+      "conditions": "selected partner phone",
+      "goal_type": "behave",
+      "priority": -2,
+      "repeat": true,
+      "messages": "The user is waiting for a specialist to connect, it may take a moment, usually, less than one minute.\nBe nice and reassure them that you're dialing the agency specialist on the other line, while they are waiting and you will connect them in less than a minute.\nYou may answer their questions to the best of your knowledge while they wait. Try to be brief.\n#### If the user says \"thank you\", \"ok\" or that they don't have any question simply say \"no problem, please hold\" or \"sure, one moment please.\" (or similar response)\n\n#### Also check for relevant responses from the documentation, try to use a new response each time.",
+      "id": "5"
+    },
+    {
+      "name": "end call",
+      "repeat": true,
+      "priority": -2,
+      "goal_type": "say_generative",
+      "messages": "They aren't available at the moment. I left a message to contact you once they are available to conduct a care consult.\n\nIf there are no other options to suggest to the customer, end the call, thank them and say \"Hope you have a great day. Goodbye!\"",
+      "id": "6"
+    }
+  ],
+  "goals_update": {
+    "speaker verification": {
+      "fulfillment": {
+        "+": {
+          "timing": "collected",
+          "conditions": "speaker verification = no",
+          "trigger": "speak on behalf"
+        }
+      }
+    },
+    "schedule-callback": {
+      "conditions": {
+        "+": {
+          "field": "agrees to transfer",
+          "condition": "is_empty"
+        }
+      }
+    }
+  },
+  "responses": [
+    {
+      "questions": [
+        "Can I use private insurance?",
+        "What kind of payment do you accept?",
+        "do you accept medicaid?",
+        "do you accept medicare?"
+      ],
+      "answers": [
+        "We do not accept insurance, Medicare, Medicaid or public assistance. We do take private pay and long-term insurance."
+      ]
+    },
+    {
+      "questions": [
+        "Do I need to make a decision today?"
+      ],
+      "answers": [
+        "That’s great! Researching your options is the best way to find the right care for your loved one. I’d be happy to connect you with a teammate of mine to go over those options. A final decision won’t have to be made today if you’re still considering what’s out there. Would that be helpful?"
+      ]
+    },
+    {
+      "questions": [
+        "We don’t need full-time care, are you able to offer just a couple hours of care per day?",
+        "What I need is two days a week for a couple hours a day, do you do that?"
+      ],
+      "answers": [
+        "That’s perfectly fine! Our care partners offer everything from part time all the way to twenty four seven care.  "
+      ]
+    },
+    {
+      "questions": [
+        "Can you do transportation?",
+        "Can you drive me?"
+      ],
+      "answers": [
+        "Great question, I can get you connected with a senior advisor to go over all care services that can be provided."
+      ]
+    },
+    {
+      "questions": [
+        "Are they close to me?",
+        "I want someone local to me.",
+        "Where are the locations of the agency?",
+        "Where are they located?"
+      ],
+      "answers": [
+        "I am searching for only local agencies close to you."
+      ]
+    },
+    {
+      "questions": [
+        "How much does care cost?",
+        "I don't have a budget. It depends on what they can provide.",
+        "I just want to find how much per hour."
+      ],
+      "answers": [
+        "The cost of care is going to depend on several factors. I can connect you with an advisor who can provide you specific pricing based on your needs."
+      ]
+    },
+    {
+      "questions": [
+        "I don't have time to talk on the phone at the moment",
+        "I'm at work right now, so I'd rather not talk on the phone right now.",
+        "I'm busy",
+        "I'm currently driving"
+      ],
+      "answers": [
+        "I can arrange for a call back if you prefer a better time."
+      ]
+    },
+    {
+      "questions": [
+        "What care options do I have?",
+        "What options do I have?",
+        "What's offered?"
+      ],
+      "answers": [
+        "Great question. I can connect you with a care advisor to go over what services they can provide help with your decision."
+      ]
+    },
+    {
+      "questions": [
+        "Do you speak Spanish?"
+      ],
+      "answers": [
+        "No. Myself and our senior advisors are English-speaking only. "
+      ]
+    },
+    {
+      "questions": [
+        "Are you better than the last agency I worked with?"
+      ],
+      "answers": [
+        "I'm so sorry to hear you had a bad experience. We pride ourselves on getting you that perfect caregiver to have that exceptional experience that you deserve."
+      ]
+    },
+    {
+      "questions": [
+        "Are you a recording?"
+      ],
+      "answers": [
+        "I am an AI agent. However, I'd like to just verify a few answers you've provided us and I'll get you connected with a live person. "
+      ]
+    },
+    {
+      "questions": [
+        "Can you call me later?",
+        "Do you have the ability to call me back?",
+        "I can't talk right now. Can you can you try me later?",
+        "I'd appreciate a call back."
+      ],
+      "answers": [
+        "Yes, we can certainly call you back as soon you prefer."
+      ]
+    },
+    {
+      "questions": [
+        "I can't talk right now. I'm currently driving."
+      ],
+      "answers": [
+        "That's completely understandable. I can give you a call back at your earliest convenience - whenever you prefer."
+      ]
+    }
+  ]
+}

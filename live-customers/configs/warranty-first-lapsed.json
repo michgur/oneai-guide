@@ -1,4 +1,20 @@
 {
+  "_id": "7131f0fc-ba95-499e-856c-e2038058493c_2026-03-24T10:24:05.880Z",
+  "id": "7131f0fc-ba95-499e-856c-e2038058493c_2026-03-24T10:24:05.880Z",
+  "recipe": "configure-your-own",
+  "org_id": "5EU9sM220Kh7pIS1QIL6mRVyle82",
+  "is_manually_changed": true,
+  "agent_id": "7131f0fc-ba95-499e-856c-e2038058493c",
+  "QnA": [
+    {
+      "question": "What is a repair plan?",
+      "answer": "A repair plan protects you from unexpected repair costs. You can use your plan as many times as you like up to the value of your car."
+    },
+    {
+      "question": "Where can I get repairs done?",
+      "answer": "There are no limits to where you can take your car for repairs - you can take your car any garage in the UK."
+    }
+  ],
   "custom_vocabulary": {
     "Warranty": {},
     "First": {}
@@ -14,16 +30,15 @@
     "%speaker_verification_acknowledge%": "Great! hi {contact_name}",
     "%responses_reason_for_call%": "I am calling about your repair plan that was set up on your {vehicle}  registration number {reg_number:digits} that you purchased {dealership?\"at\"} {dealership?dealership}.",
     "%responses_company_name%": "Warranty First - we provide car repair plans.",
-    "%responses_list_source%": "You have a repair plan with us that is due to end on {expiry_date:words}.",
+    "%responses_list_source%": "You have a repair plan with us that ended on {expiry_date:words}.",
     "_vehicle": "Ford Focus",
     "_dealership": "Joe's dealers",
     "_expiry_date": "November 30th",
-    "expiry_date_iso": "2026-02-26T00:00:00.000Z",
+    "expiry_date_iso": "2026-01-26T00:00:00.000Z",
     "%average_repair_cost%": "1200",
     "message_type_sent": "text message",
     "_days_until_expiry": "8",
-    "_reg_number": "12",
-    "%nli_version%": 8
+    "_reg_number": "12"
   },
   "elaboration_detection": true,
   "experiments": [
@@ -34,28 +49,28 @@
           "name": "base with differnt CTA",
           "percent": 25,
           "default_metadata": {
-            "%open_message%": "I’m calling about the repair plan that was set up on your car. {vehicle} Registration number {reg_number:digits}, when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that your repair plan ends on {expiry_date:words}."
+            "%open_message%": "I’m calling about the repair plan that was set up on your car. {vehicle} Registration number {reg_number:digits}, when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that your repair plan recently ended on {expiry_date:words}."
           }
         },
         {
           "name": "we sent you an email/text earlier",
           "percent": 25,
           "default_metadata": {
-            "%open_message%": "We sent you an {message_type_sent/message} earlier. I’m calling about the repair plan that was set up on your car. {vehicle} Registration number {reg_number:digits} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that it ends in just  {expiry_date_iso:days_to} days."
+            "%open_message%": "We sent you an {message_type_sent/message} earlier. I’m calling about the repair plan that was set up on your car. {vehicle} Registration number {reg_number:digits} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that it recently ended {expiry_date_iso:days_to:abs} days ago."
           }
         },
         {
           "name": "too many people get unexpected repair bills",
           "percent": 25,
           "default_metadata": {
-            "%open_message%": "I’m calling about the repair plan that was set up on your {vehicle} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that your current plan ends in just {days_until_expiry} days, and I've seen too many people get hit with unexpected repair bills after their plan ends."
+            "%open_message%": "I’m calling about the repair plan that was set up on your {vehicle} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that your plan ended {expiry_date_iso:days_to:abs} days ago, and I've seen too many people get hit with unexpected repair bills after their plan ends."
           }
         },
         {
           "name": "lock in your rate right now",
           "percent": 25,
           "default_metadata": {
-            "%open_message%": "I’m calling about the repair plan that was set up on your {vehicle} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that it ends in {days_until_expiry} days."
+            "%open_message%": "I’m calling about the repair plan that was set up on your {vehicle} when you purchased it from {dealership?dealership?\"the dealership\"}. My system shows that it ended {expiry_date_iso:days_to:abs} days ago."
           }
         }
       ]
@@ -66,49 +81,23 @@
       "test_groups": [
         {
           "name": "hear repair options",
-          "percent": 25,
+          "percent": 34,
           "default_metadata": {
-            "%cta_message%": "Do you want to hear about the options you have to make sure you remain protected from expensive repair bills?"
+            "%cta_message%": "We would like to show you what we can offer you to keep you protected against the cost of repairs. would you like to look at our repair plan renewal options?"
           }
         },
         {
           "name": "planning to continue after plan ends",
-          "percent": 25,
+          "percent": 33,
           "default_metadata": {
-            "%cta_message%": "Are you planning to continue with some form of repair plan after your current plan ends?"
+            "%cta_message%": "Are you planning to continue with some form of repair plan now that your current plan ends?"
           }
         },
         {
           "name": "transfer to lock in rate",
-          "percent": 25,
+          "percent": 33,
           "default_metadata": {
             "%cta_message%": "I'm calling to see if you would like to renew your plan to make sure that you are protected for any unexpected repair costs in the future, Should I transfer you to a member of the team who can complete your plan renewal?"
-          }
-        },
-        {
-          "name": "pre-approval expires",
-          "percent": 25,
-          "default_metadata": {
-            "%cta_message%": "I've got you pre-approved for renewal before {expiry_date} - which means you'd skip going through the full application process and waiting period that everyone else has to do - should I get one of my specialists on the phone with you right now to discuss your renewal options before your plan ends?"
-          }
-        }
-      ]
-    },
-    {
-      "name": "objection handler",
-      "test_groups": [
-        {
-          "name": "application process again",
-          "percent": 50,
-          "default_metadata": {
-            "%objection_handler%": "Once your current plan ends, you'd have to go through the whole application process again. Would you like me to have them take you through our latest offers?"
-          }
-        },
-        {
-          "name": "learn your options",
-          "percent": 50,
-          "default_metadata": {
-            "%objection_handler%": "It's totally up to you but I think you should learn what your options are before making a decision, can I pass you to my colleague who'll give you the details?"
           }
         }
       ]
@@ -142,18 +131,15 @@
   ],
   "goals": [
     {
+      "name": "inbound outside_working_hours_intro",
+      "detection_name": "agree to call back",
       "goal_type": "ask",
       "value_type": "approval",
       "is_selection": true,
       "conditions": "%call_type% = phone_inbound and %in_transfer_working_hours% = no",
-      "name": "outside_working_hours_intro",
-      "detection_name": "agree to call back",
       "messages": [
         {
-          "message": "Thank you for calling me back, I called about your current repair plan on your vehicle which is going to end on {expiry_date:words} {, Our team is not available at the moment, can I call you back when someone is available to assist?"
-        },
-        {
-          "message": "Unfortunately, our specialists are currently with other customers. Would it be okay if I scheduled a callback for when they're free?"
+          "message": "Thank you for calling me back, I called about your current repair plan on your vehicle which ended on {expiry_date:words}, Our team is not available at the moment, can I call you back when someone is available to assist?"
         },
         {
           "message": "I'm afraid our team is currently unavailable, but I'd be happy to arrange for someone to call you back at a convenient time. Would that work for you?"
@@ -162,7 +148,6 @@
           "message": "Our advisors are all busy helping other customers right now. Can I have one of them call you back when they're available to discuss your renewal options?"
         }
       ],
-      "validation_prompt": "check if the agent can schedule a callback.",
       "choices": [
         {
           "name": "yes",
@@ -199,24 +184,28 @@
     },
     {
       "name": "agree to transfer",
+      "triggers": [
+        "how much does it cost?"
+      ],
       "detection_name": "agree to transfer now",
+      "passive_detection": true,
       "enabled": true,
       "value_type": "approval",
       "objection_conditions": "%self% and %self%=no",
       "messages": [
         {
-          "message": "Thank you for calling me back,I called about your current repair plan on your vehicle. which is going to end on{expiry_date:words}. Can I transfer you to a member of the team to give you more information about your vehicle repair plan?",
+          "message": "Thank you for calling me back, I called about your current repair plan on your vehicle. which is going to end on{expiry_date:words}. Can I transfer you to a member of the team to give you more information about your vehicle repair plan?",
           "conditions": "%call_type% = phone_inbound and %performed_count%=0"
         },
         {
           "message": "{%open_message%} {%cta_message%}",
-          "conditions": "%call_type% != phone_inbound"
+          "conditions": "%call_type% != phone_inbound and %performed_count%=0"
         },
         "Can we transfer you now to a member of the team that can complete your repair plan renewal?",
         "Now that we have everything sorted, shall I connect you with a member of the team?",
         "Can I transfer you to a member of the team?",
         {
-          "message": "{%objection_handler%}",
+          "message": "It's totally up to you but I think you should learn what your options are before making a decision, can I pass you to my colleague who'll give you the details?",
           "objection_handler": true
         }
       ],
@@ -233,8 +222,7 @@
           "priority": 1,
           "passive_detection": true,
           "validation_prompt": [
-            "User already got a new insurace coverage",
-            "User already got a new repair",
+            "User already got a repair plan",
             "User sold the car",
             "User does not have the car"
           ],
@@ -254,6 +242,7 @@
           "validation_prompt": [
             "user is busy or wants to talk at later time"
           ],
+          "passive_detection": true,
           "fulfillment": [
             {
               "timing": "collected",
@@ -266,7 +255,8 @@
           "name": "no",
           "passive_detection": true,
           "validation_prompt": [
-            "User is not interested in repair plan"
+            "User is not interested in repair plan",
+            "User already got a new insurace coverage"
           ],
           "acknowledge": [
             {
@@ -427,6 +417,24 @@
       ],
       "answers": [
         "Oh, This is a warranty that you got when you purchased your {vehicle}."
+      ]
+    },
+    {
+      "questions": [
+        "What happens if I don’t renew it?",
+        "What if I don't renew my coverage plan?"
+      ],
+      "answers": [
+        "Then you’d be liable for the full cost of repairs if anything happens."
+      ]
+    },
+    {
+      "questions": [
+        "how much does it cost?",
+        "Can you tell me how much it costs?"
+      ],
+      "answers": [
+        "Our team can get you the exact cost details."
       ]
     }
   ]
